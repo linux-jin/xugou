@@ -1,3 +1,5 @@
+import { drizzle } from 'drizzle-orm/d1';
+
 // 通用数据库类型定义
 export interface D1Database {
   prepare(query: string): D1PreparedStatement;
@@ -45,4 +47,10 @@ export interface VersionMetadata {
 export type Bindings = {
   DB: D1Database;
   CF_VERSION_METADATA?: VersionMetadata;
+};
+
+
+// 使用 drizzle-orm 进行数据库操作
+export const NewDatabaseConn = (db: Bindings["DB"]) => {
+  return drizzle(db);
 };

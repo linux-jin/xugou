@@ -33,21 +33,11 @@ app.route("/api/users", api.users);
 app.route("/api/status", api.status);
 app.route("/api/notifications", api.notifications);
 app.route("/api/dashboard", api.dashboard);
-// 数据库状态标志，用于记录数据库初始化状态
-let dbInitialized = false;
 
 // 导出 fetch 函数供 Cloudflare Workers 使用
 export default {
   // 处理 HTTP 请求
   async fetch(request: Request, env: Bindings, ctx: ExecutionContext) {
-    // 静态初始化标志
-    if (!globalThis.isInitialized) {
-      console.log("第一次请求，初始化应用...");
-
-      // 设置初始化标志
-      globalThis.isInitialized = true;
-    }
-
     // 如果是 OPTIONS 请求，直接处理
     if (request.method === "OPTIONS") {
       return new Response(null, {
@@ -62,15 +52,14 @@ export default {
         },
       });
     }
-
-    // 如果数据库尚未初始化，则进行初始化检查
-    if (!dbInitialized) {
-      console.log("首次请求，检查数据库状态...");
+    // 静态初始化标志
+    if (!globalThis.isInitialized) {
+      console.log("第一次请求，初始化应用...");
       const initResult = await initDb.checkAndInitializeDatabase(env);
-      dbInitialized = true;
       console.log("数据库检查结果:", initResult.message);
+      // 设置初始化标志
+      globalThis.isInitialized = true;
     }
-
     // 处理请求
     return app.fetch(request, env, ctx);
   },
