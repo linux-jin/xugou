@@ -8,6 +8,7 @@ export interface Agent {
   created_at: string;
   updated_at: string;
   hostname: string | null;
+  keepalive: string | null;
   ip_addresses: string | null; // 存储多个IP地址的JSON字符串
   os: string | null;
   version: string | null;

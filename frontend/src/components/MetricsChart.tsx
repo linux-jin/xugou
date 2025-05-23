@@ -5,7 +5,14 @@ import React, {
   useCallback,
   useState,
 } from "react";
-import { Box, Select, Flex } from "@radix-ui/themes";
+import { Box, Flex } from "@radix-ui/themes";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectItem,
+  SelectValue, // 添加 SelectValue 到导入列表
+} from "./ui";
 import { useTranslation } from "react-i18next";
 import { Line } from "react-chartjs-2";
 import { MetricHistory, MetricType } from "../types";
@@ -976,19 +983,21 @@ const MetricsChart: React.FC<MetricsChartProps> = ({
     if (metricType === "disk" && availableDiskDevices.length > 0) {
       return (
         <Box mb="2">
-          <Select.Root
+          <Select
             value={selectedDiskDevice}
             onValueChange={setSelectedDiskDevice}
           >
-            <Select.Trigger />
-            <Select.Content>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {availableDiskDevices.map((device) => (
-                <Select.Item key={device.value} value={device.value}>
+                <SelectItem key={device.value} value={device.value}>
                   {device.label}
-                </Select.Item>
+                </SelectItem>
               ))}
-            </Select.Content>
-          </Select.Root>
+            </SelectContent>
+          </Select>
         </Box>
       );
     }
@@ -996,35 +1005,39 @@ const MetricsChart: React.FC<MetricsChartProps> = ({
     if (metricType === "network" && availableNetworkInterfaces.length > 0) {
       return (
         <Flex gap="2" mb="2" align="center">
-          <Select.Root
+          <Select
             value={selectedNetworkInterface}
             onValueChange={setSelectedNetworkInterface}
           >
-            <Select.Trigger />
-            <Select.Content>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               {availableNetworkInterfaces.map((iface) => (
-                <Select.Item key={iface.value} value={iface.value}>
+                <SelectItem key={iface.value} value={iface.value}>
                   {iface.label}
-                </Select.Item>
+                </SelectItem>
               ))}
-            </Select.Content>
-          </Select.Root>
-          <Select.Root
+            </SelectContent>
+          </Select>
+          <Select
             value={selectedNetworkMetric}
             onValueChange={(value) =>
               setSelectedNetworkMetric(value as "received" | "sent")
             }
           >
-            <Select.Trigger />
-            <Select.Content>
-              <Select.Item value="received">
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="received">
                 {t("agent.metrics.network.received")}
-              </Select.Item>
-              <Select.Item value="sent">
+              </SelectItem>
+              <SelectItem value="sent">
                 {t("agent.metrics.network.sent")}
-              </Select.Item>
-            </Select.Content>
-          </Select.Root>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </Flex>
       );
     }
@@ -1033,25 +1046,23 @@ const MetricsChart: React.FC<MetricsChartProps> = ({
     if (metricType === "load") {
       return (
         <Box mb="2">
-          <Select.Root
+          <Select
             value={selectedLoadType}
             onValueChange={(value) =>
               setSelectedLoadType(value as "1" | "5" | "15")
             }
           >
-            <Select.Trigger />
-            <Select.Content>
-              <Select.Item value="1">
-                {t("agent.metrics.load.1min")}
-              </Select.Item>
-              <Select.Item value="5">
-                {t("agent.metrics.load.5min")}
-              </Select.Item>
-              <Select.Item value="15">
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">{t("agent.metrics.load.1min")}</SelectItem>
+              <SelectItem value="5">{t("agent.metrics.load.5min")}</SelectItem>
+              <SelectItem value="15">
                 {t("agent.metrics.load.15min")}
-              </Select.Item>
-            </Select.Content>
-          </Select.Root>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </Box>
       );
     }

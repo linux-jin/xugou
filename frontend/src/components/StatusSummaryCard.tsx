@@ -1,6 +1,6 @@
-import { Box, Card, Flex, Heading, Text } from "@radix-ui/themes";
+import { Box, Flex, Heading, Text } from "@radix-ui/themes";
+import { Card } from "./ui";
 import { ReactNode } from "react";
-import "../styles/components.css";
 
 interface StatusItem {
   icon: ReactNode;
@@ -30,14 +30,7 @@ const StatusSummaryCard = ({ title, items }: StatusSummaryCardProps) => {
           {items.map((item, index) => (
             <Flex key={index} justify="between" align="center">
               <Flex align="center" gap="2">
-                <Box
-                  className="status-icon-container"
-                  style={{
-                    background: item.bgColor || "var(--gray-3)",
-                    padding: "8px",
-                    borderRadius: "6px",
-                  }}
-                >
+                <Box className="status-icon-container">
                   <Box style={{ color: item.iconColor }}>{item.icon}</Box>
                 </Box>
                 <Text size="2">{item.label}</Text>

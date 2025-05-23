@@ -1,6 +1,7 @@
 import { Bindings } from "../models/db";
 import { migrateFrom003To004 } from "./migrate-0.0.3-to-0.0.4";
 import { migrateFrom004To005 } from "./migrate-0.0.4-to-0.0.5";
+import { migrateFrom007To008 } from "./migrate-0.0.7-to-0.0.8";
 
 // 执行所有迁移脚本
 export async function runMigrations(env: Bindings): Promise<void> {
@@ -15,7 +16,9 @@ export async function runMigrations(env: Bindings): Promise<void> {
     const migration2Result = await migrateFrom004To005(env);
     console.log(`迁移 0.0.4 -> 0.0.5: ${migration2Result.message}`);
 
-    // 将来可以在这里添加更多迁移脚本
+    // 从 v0.0.7 迁移到 v0.0.8
+    const migration3Result = await migrateFrom007To008(env);
+    console.log(`迁移 0.0.7 -> 0.0.8: ${migration3Result.message}`)
 
     console.log("所有迁移已完成");
   } catch (error) {

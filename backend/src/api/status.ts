@@ -19,11 +19,8 @@ interface StatusPageConfig {
 // 创建API路由
 const status = new Hono<{ Bindings: Bindings }>();
 
-// 创建管理员路由组
-const adminRoutes = new Hono<{ Bindings: Bindings }>();
-
 // 获取状态页配置(管理员)
-adminRoutes.get("/config", async (c) => {
+status.get("/config", async (c) => {
   const payload = c.get("jwtPayload");
   const userId = payload.id;
 
@@ -37,7 +34,7 @@ adminRoutes.get("/config", async (c) => {
 });
 
 // 保存状态页配置
-adminRoutes.post("/config", async (c) => {
+status.post("/config", async (c) => {
   const payload = c.get("jwtPayload");
   const userId = payload.id;
   const data = (await c.req.json()) as StatusPageConfig;
@@ -58,14 +55,9 @@ adminRoutes.post("/config", async (c) => {
   }
 });
 
-// 公共路由
-// 获取状态页数据（公开访问）
 status.get("/data", async (c) => {
   const result = await getStatusPagePublicData(c.env);
   return c.json(result);
 });
-
-// 使用路由组
-status.route("/", adminRoutes);
 
 export { status };

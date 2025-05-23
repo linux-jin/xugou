@@ -87,20 +87,3 @@ export const getAgentMetrics = async (
     };
   }
 };
-
-export const getAllAgentMetrics = async (): Promise<{
-  success: boolean;
-  metrics?: MetricHistory[];
-  message?: string;
-}> => {
-  try {
-    const response = await api.get(`/api/agents/metrics`);
-    return response.data;
-  } catch (error) {
-    console.error(`获取所有客户端的指标失败:`, error);
-    return {
-      success: false,
-      message: "获取所有客户端指标失败",
-    };
-  }
-};

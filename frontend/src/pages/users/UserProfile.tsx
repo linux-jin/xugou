@@ -1,13 +1,6 @@
 import { useState, useEffect } from "react";
-import {
-  Button,
-  Card,
-  Flex,
-  Heading,
-  Text,
-  TextField,
-  Box,
-} from "@radix-ui/themes";
+import { Flex, Heading, Text, TextField, Box } from "@radix-ui/themes";
+import { Button, Card } from "@/components/ui";
 import { useAuth } from "../../providers/AuthProvider";
 import { updateUser, changePassword } from "../../api/users";
 import { UpdateUserRequest, ChangePasswordRequest } from "../../types/users";

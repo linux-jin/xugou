@@ -4,24 +4,32 @@ import {
   Flex,
   Heading,
   Text,
-  Card,
-  Button,
   TextField,
-  Tabs,
   Container,
-  Switch,
-  Dialog,
-  Select,
 } from "@radix-ui/themes";
+
 import {
-  BellIcon,
-  PlusIcon,
-  CheckCircledIcon,
-  CrossCircledIcon,
-  InfoCircledIcon,
-} from "@radix-ui/react-icons";
-import * as Toast from "@radix-ui/react-toast";
-import "../../styles/components.css";
+  Button,
+  Card,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+  Select,
+  SelectItem,
+  SelectTrigger,
+  SelectContent,
+  SelectValue,
+  Switch,
+} from "@/components/ui";
+
+import { BellIcon, PlusIcon } from "@radix-ui/react-icons";
+import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { getAllMonitors } from "../../api/monitors";
 import { Monitor } from "../../types/monitors";
@@ -51,10 +59,6 @@ const NotificationsConfig = () => {
   const [monitorsLoading, setMonitorsLoading] = useState(true);
   const [agentsLoading, setAgentsLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
-  const [showInfoToast, setShowInfoToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
 
   // Channel management state
   const [isAddChannelOpen, setIsAddChannelOpen] = useState(false);
@@ -93,7 +97,6 @@ const NotificationsConfig = () => {
     loadMonitorsAndAgents();
   }, [t]);
 
-
   const loadData = async () => {
     try {
       setLoading(true);
@@ -106,13 +109,11 @@ const NotificationsConfig = () => {
         setSettings(configResponse.data.settings);
       } else {
         console.error("获取通知配置失败:", configResponse.message);
-        setShowErrorToast(true);
-        setToastMessage(t("notifications.fetch.error"));
+        toast.error(t("notifications.fetch.error"));
       }
     } catch (error) {
       console.error("加载通知设置失败", error);
-      setShowErrorToast(true);
-      setToastMessage(t("notifications.fetch.error"));
+      toast.error(t("notifications.fetch.error"));
     } finally {
       setLoading(false);
     }
@@ -240,19 +241,13 @@ const NotificationsConfig = () => {
       const response = await saveNotificationSettings(settings);
 
       if (response.success) {
-        setToastMessage(t("notifications.save.success"));
-        setShowSuccessToast(true);
-        setTimeout(() => setShowSuccessToast(false), 3000);
+        toast.success(t("notifications.save.success"));
       } else {
-        setToastMessage(response.message || t("notifications.save.error"));
-        setShowErrorToast(true);
-        setTimeout(() => setShowErrorToast(false), 3000);
+        toast.error(t("notifications.save.error"));
       }
     } catch (err) {
       console.error("保存通知设置失败", err);
-      setToastMessage(t("notifications.save.error"));
-      setShowErrorToast(true);
-      setTimeout(() => setShowErrorToast(false), 3000);
+      toast.error(t("notifications.save.error"));
     } finally {
       setSaving(false);
     }
@@ -291,8 +286,7 @@ const NotificationsConfig = () => {
     // 确保渠道ID是有效的数字
     if (!channel.id || isNaN(Number(channel.id))) {
       console.error("无效的渠道ID:", channel.id);
-      setToastMessage(t("notifications.channels.invalidId"));
-      setShowErrorToast(true);
+      toast.error(t("notifications.channels.invalidId"));
       return;
     }
 
@@ -407,8 +401,7 @@ const NotificationsConfig = () => {
     // 确保channelId是有效的数字
     if (!channelId || isNaN(Number(channelId))) {
       console.error("无效的渠道ID:", channelId);
-      setToastMessage(t("notifications.channels.invalidId"));
-      setShowErrorToast(true);
+      toast.error(t("notifications.channels.invalidId"));
       return;
     }
 
@@ -527,18 +520,13 @@ const NotificationsConfig = () => {
           }
 
           // 显示成功消息
-          setToastMessage(t("notifications.channels.updateSuccess"));
-          setShowSuccessToast(true);
+          toast.success(t("notifications.channels.updateSuccess"));
 
           // 关闭对话框
           setIsAddChannelOpen(false);
           setIsEditChannelOpen(false);
         } else {
-          // 显示错误消息
-          setToastMessage(
-            (response && response.message) || t("common.unknownError")
-          );
-          setShowErrorToast(true);
+          toast.error(t("notifications.channels.updateError"));
         }
       } else {
         // 创建新渠道
@@ -550,10 +538,7 @@ const NotificationsConfig = () => {
           if (configResponse.success && configResponse.data) {
             setChannels(configResponse.data.channels);
           }
-
-          // 显示成功消息
-          setToastMessage(t("notifications.channels.createSuccess"));
-          setShowSuccessToast(true);
+          toast.success(t("notifications.channels.createSuccess")); // 显示成功消息
 
           // 关闭对话框
           setIsAddChannelOpen(false);
@@ -562,8 +547,7 @@ const NotificationsConfig = () => {
       }
     } catch (error) {
       console.error("保存通知渠道失败", error);
-      setToastMessage(t("notifications.channels.saveError"));
-      setShowErrorToast(true);
+      toast.error(t("notifications.channels.saveError"));
     } finally {
       setSaving(false);
     }
@@ -573,8 +557,7 @@ const NotificationsConfig = () => {
   const handleConfirmDeleteChannel = async () => {
     if (!selectedChannelId || isNaN(Number(selectedChannelId))) {
       console.error("无效的渠道ID:", selectedChannelId);
-      setToastMessage(t("notifications.channels.invalidId"));
-      setShowErrorToast(true);
+      toast.error(t("notifications.channels.invalidId"));
       return;
     }
 
@@ -589,20 +572,17 @@ const NotificationsConfig = () => {
         );
 
         // 显示成功消息
-        setToastMessage(t("notifications.channels.deleteSuccess"));
-        setShowSuccessToast(true);
+        toast.success(t("notifications.channels.deleteSuccess"));
 
         // 关闭对话框
         setIsDeleteChannelOpen(false);
       } else {
         // 显示错误消息
-        setToastMessage(response.message || t("common.unknownError"));
-        setShowErrorToast(true);
+        toast.error(t("notifications.channels.deleteError"));
       }
     } catch (error) {
       console.error("删除通知渠道失败", error);
-      setToastMessage(t("notifications.channels.deleteError"));
-      setShowErrorToast(true);
+      toast.error(t("notifications.channels.deleteError"));
     } finally {
       setSaving(false);
     }
@@ -611,23 +591,17 @@ const NotificationsConfig = () => {
   // 处理添加模板
   const handleAddTemplateClick = () => {
     // 这里未来可以实现添加模板功能
-    setToastMessage(t("notifications.templates.comingSoon"));
-    setShowInfoToast(true);
-    setTimeout(() => setShowInfoToast(false), 3000);
+    toast.message(t("notifications.templates.comingSoon"));
   };
 
   // 打开编辑模板对话框
   const handleEditTemplateClick = (template: ApiNotificationTemplate) => {
     if (!template.id) {
       console.error("无效的模板ID:", template.id);
-      setToastMessage(t("common.error.invalidId"));
-      setShowErrorToast(true);
+      toast.message(t("common.error.invalidId"));
       return;
     }
-
-    setToastMessage(t("notifications.templates.comingSoon"));
-    setShowInfoToast(true);
-    setTimeout(() => setShowInfoToast(false), 3000);
+    toast.message(t("notifications.templates.comingSoon"));
 
     // 以下是未来实现编辑模板对话框的注释代码
     // setIsEditTemplateOpen(true);
@@ -638,30 +612,24 @@ const NotificationsConfig = () => {
     if (!settings) return <Text>{t("common.loading")}...</Text>;
 
     return (
-      <Flex direction="column" gap="5">
-        <Text size="2" color="gray" mb="3">
+      <Flex direction="column" gap="2">
+        <Text className="text-sm text-gray-600">
           {t("notifications.channels.tabDescription")}
         </Text>
 
         {/* 通知渠道部分 */}
-        <Box>
-          <Flex justify="between" align="center" mb="3">
-            <Heading size="3">{t("notifications.channels.title")}</Heading>
-            <Button
-              size="3"
-              color="blue"
-              variant="soft"
-              style={{ padding: "0 16px", fontWeight: "bold" }}
-              onClick={handleAddChannelClick}
-            >
-              <PlusIcon width="16" height="16" style={{ marginRight: "6px" }} />
+        <Box p="2">
+          <Flex className="justify-between items-center mb-2">
+            <Text className="text-lg">{t("notifications.channels.title")}</Text>
+            <Button className="ml-auto" variant="secondary" onClick={handleAddChannelClick}>
+              <PlusIcon width="16" height="16" />
               {t("notifications.channels.add")}
             </Button>
           </Flex>
 
           <Card>
-            <Box p="3">
-              <Text size="2" color="gray" mb="3">
+            <Box p="2">
+              <Text className="text-gray-600 mb-3">
                 {t("notifications.channels.description")}
               </Text>
 
@@ -670,13 +638,13 @@ const NotificationsConfig = () => {
                   {t("notifications.channels.noChannels")}
                 </Text>
               ) : (
-                <Flex direction="column" gap="3">
+                <Flex direction="column" gap="1">
                   {channels.map((channel) => (
-                    <Card key={channel.id} mb="2" style={{ padding: "12px" }}>
-                      <Flex justify="between" align="center">
+                    <Card key={channel.id}>
+                      <Flex className="justify-between items-center">
                         <Flex direction="column" gap="1">
                           <Flex gap="2" align="center">
-                            <Text weight="medium">{channel.name}</Text>
+                            <Text className="text-lg">{channel.name}</Text>
                             {channel.type === "telegram" &&
                               channel.config &&
                               (() => {
@@ -694,27 +662,17 @@ const NotificationsConfig = () => {
                                   return false;
                                 }
                               })() && (
-                                <Text
-                                  size="1"
-                                  style={{
-                                    backgroundColor: "var(--blue-3)",
-                                    color: "var(--blue-11)",
-                                    padding: "2px 6px",
-                                    borderRadius: "4px",
-                                  }}
-                                >
-                                  {t("common.default")}
-                                </Text>
+                                <Text className="text-xs">{t("common.default")}</Text>
                               )}
                           </Flex>
-                          <Text size="1" color="gray">
+                          <Text className="text-xs text-gray-600">
                             {t(`notifications.channels.type.${channel.type}`)}
                           </Text>
                         </Flex>
                         <Flex gap="2">
                           <Button
-                            variant="soft"
-                            size="1"
+                            variant="secondary"
+                            className="ml-auto"
                             onClick={() => handleEditChannelClick(channel)}
                             disabled={
                               channel.type === "telegram" &&
@@ -739,9 +697,8 @@ const NotificationsConfig = () => {
                             {t("common.edit")}
                           </Button>
                           <Button
-                            variant="soft"
-                            color="red"
-                            size="1"
+                          className="ml-auto"
+                            variant="secondary"
                             onClick={() => handleDeleteChannelClick(channel.id)}
                           >
                             {t("common.delete")}
@@ -764,7 +721,7 @@ const NotificationsConfig = () => {
     if (!settings) return <Text>{t("common.loading")}...</Text>;
 
     return (
-      <Flex direction="column" gap="5">
+      <Flex direction="column" gap="2">
         <Text size="2" color="gray" mb="3">
           {t("notifications.templates.tabDescription")}
         </Text>
@@ -773,14 +730,8 @@ const NotificationsConfig = () => {
         <Box>
           <Flex justify="between" align="center" mb="3">
             <Heading size="3">{t("notifications.templates.title")}</Heading>
-            <Button
-              size="3"
-              color="blue"
-              variant="soft"
-              style={{ padding: "0 16px", fontWeight: "bold" }}
-              onClick={handleAddTemplateClick}
-            >
-              <PlusIcon width="16" height="16" style={{ marginRight: "6px" }} />
+            <Button variant="secondary" onClick={handleAddTemplateClick}>
+              <PlusIcon width="16" height="16" />
               {t("notifications.templates.add")}
             </Button>
           </Flex>
@@ -798,37 +749,26 @@ const NotificationsConfig = () => {
               ) : (
                 <Flex direction="column" gap="3">
                   {templates.map((template) => (
-                    <Card key={template.id} mb="3" style={{ padding: "16px" }}>
+                    <Card key={template.id}>
                       <Flex direction="column" gap="3">
                         <Flex justify="between" align="center">
                           <Flex gap="2" align="center">
                             <Text weight="medium">{template.name}</Text>
                             {template.isDefault && (
-                              <Text
-                                size="1"
-                                style={{
-                                  backgroundColor: "var(--blue-3)",
-                                  color: "var(--blue-11)",
-                                  padding: "2px 6px",
-                                  borderRadius: "4px",
-                                }}
-                              >
+                              <Text size="1">
                                 {t("notifications.templates.defaultTemplate")}
                               </Text>
                             )}
                           </Flex>
                           <Flex gap="2">
                             <Button
-                              variant="soft"
-                              size="1"
+                              variant="secondary"
                               onClick={() => handleEditTemplateClick(template)}
                             >
                               {t("common.edit")}
                             </Button>
                             <Button
-                              variant="soft"
-                              color="red"
-                              size="1"
+                              variant="secondary"
                               disabled={template.isDefault}
                             >
                               {t("common.delete")}
@@ -847,18 +787,7 @@ const NotificationsConfig = () => {
                           <Text size="2" weight="medium">
                             {t("notifications.templates.content")}:
                           </Text>
-                          <Box
-                            style={{
-                              background: "var(--gray-2)",
-                              padding: "12px",
-                              borderRadius: "6px",
-                              whiteSpace: "pre-wrap",
-                              fontFamily: "monospace",
-                              fontSize: "13px",
-                            }}
-                          >
-                            {template.content}
-                          </Box>
+                          <Box>{template.content}</Box>
                         </Box>
                       </Flex>
                     </Card>
@@ -877,26 +806,26 @@ const NotificationsConfig = () => {
     if (!settings) return <Text>{t("common.loading")}...</Text>;
 
     return (
-      <Flex direction="column" gap="5">
-        <Text size="2" color="gray" mb="3">
+      <Flex direction="column" gap="2">
+        <Text className="text-sm">
           {t("notifications.globalSettings.description")}
         </Text>
 
         {/* 全局监控通知设置 */}
         <Box>
-          <Heading size="3" mb="3">
+          <Text className="text-lg">
             {t("notifications.settings.monitors")}
-          </Heading>
+          </Text>
 
-          <Card mb="5">
-            <Box p="3">
-              <Flex direction="column" gap="4">
+          <Card>
+            <Box p="1">
+              <Flex direction="column" gap="1">
                 <Flex justify="between" align="center">
-                  <Box>
-                    <Text weight="medium">
+                  <Box >
+                    <Text className="text-base">
                       {t("notifications.settings.monitors")}
                     </Text>
-                    <Text size="1" color="gray">
+                    <Text className="text-sm text-gray-600">
                       {t("notifications.settings.monitors.description")}
                     </Text>
                   </Box>
@@ -909,36 +838,34 @@ const NotificationsConfig = () => {
                 </Flex>
 
                 {settings.monitors.enabled && (
-                  <Box pl="4">
+                  <Box pl="1">
                     <Flex direction="column" gap="3">
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={settings.monitors.onDown}
                           onCheckedChange={(checked) =>
                             handleMonitorSettingChange("onDown", checked)
                           }
                         />
-                        <Text size="2">
+                        <Text className="text-xs">
                           {t("notifications.events.onDownOnly")}
                         </Text>
                       </Flex>
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={settings.monitors.onRecovery}
                           onCheckedChange={(checked) =>
                             handleMonitorSettingChange("onRecovery", checked)
                           }
                         />
-                        <Text size="2">
+                        <Text className="text-xs">
                           {t("notifications.events.onRecovery")}
                         </Text>
                       </Flex>
 
                       <Box>
-                        <Text size="2" weight="medium" mb="2">
+                        <Text className="text-xs mb-2">
                           {t("notifications.specificSettings.channels")}
                         </Text>
                         <ChannelSelector
@@ -958,20 +885,20 @@ const NotificationsConfig = () => {
         </Box>
 
         {/* 全局客户端通知设置 */}
-        <Box>
-          <Heading size="3" mb="3">
+        <Box p="1">
+          <Text className="text-lg mb-2">
             {t("notifications.settings.agents")}
-          </Heading>
+          </Text>
 
-          <Card mb="5">
-            <Box p="3">
+          <Card>
+            <Box p="1">
               <Flex direction="column" gap="4">
                 <Flex justify="between" align="center">
                   <Box>
-                    <Text weight="medium">
+                    <Text className="text-base">
                       {t("notifications.settings.agents")}
                     </Text>
-                    <Text size="1" color="gray">
+                    <Text className="text-sm text-gray-600">
                       {t("notifications.settings.agents.description")}
                     </Text>
                   </Box>
@@ -988,7 +915,6 @@ const NotificationsConfig = () => {
                     <Flex direction="column" gap="3">
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={settings.agents.onOffline}
                           onCheckedChange={(checked) =>
                             handleAgentSettingChange("onOffline", checked)
@@ -1001,7 +927,6 @@ const NotificationsConfig = () => {
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={settings.agents.onRecovery}
                           onCheckedChange={(checked) =>
                             handleAgentSettingChange("onRecovery", checked)
@@ -1014,7 +939,6 @@ const NotificationsConfig = () => {
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={settings.agents.onCpuThreshold}
                           onCheckedChange={(checked) =>
                             handleAgentSettingChange("onCpuThreshold", checked)
@@ -1042,7 +966,6 @@ const NotificationsConfig = () => {
                                 Number(e.target.value)
                               )
                             }
-                            style={{ width: "80px" }}
                           />
                           <Text size="2">
                             {t("notifications.threshold.percent")}
@@ -1052,7 +975,6 @@ const NotificationsConfig = () => {
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={settings.agents.onMemoryThreshold}
                           onCheckedChange={(checked) =>
                             handleAgentSettingChange(
@@ -1083,7 +1005,6 @@ const NotificationsConfig = () => {
                                 Number(e.target.value)
                               )
                             }
-                            style={{ width: "80px" }}
                           />
                           <Text size="2">
                             {t("notifications.threshold.percent")}
@@ -1093,7 +1014,6 @@ const NotificationsConfig = () => {
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={settings.agents.onDiskThreshold}
                           onCheckedChange={(checked) =>
                             handleAgentSettingChange("onDiskThreshold", checked)
@@ -1121,7 +1041,6 @@ const NotificationsConfig = () => {
                                 Number(e.target.value)
                               )
                             }
-                            style={{ width: "80px" }}
                           />
                           <Text size="2">
                             {t("notifications.threshold.percent")}
@@ -1162,7 +1081,7 @@ const NotificationsConfig = () => {
     }
 
     return (
-      <Flex direction="column" gap="5">
+      <Flex direction="column" gap="2">
         <Text size="2" color="gray" mb="3">
           {t("notifications.specificMonitors.description")}
         </Text>
@@ -1177,16 +1096,11 @@ const NotificationsConfig = () => {
           };
 
           return (
-            <Card
-              key={monitorId}
-              style={{ padding: "16px", marginBottom: "16px" }}
-            >
+            <Card key={monitorId}>
               <Flex direction="column" gap="3">
                 <Flex justify="between" align="center">
                   <Box>
-                    <Text weight="medium" style={{ marginRight: "4px" }}>
-                      {monitor.name}
-                    </Text>
+                    <Text weight="medium">{monitor.name}</Text>
                     <Text size="1" color="gray">
                       {monitor.url}
                     </Text>
@@ -1208,7 +1122,6 @@ const NotificationsConfig = () => {
                     <Flex direction="column" gap="3">
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={specificSettings.onDown}
                           onCheckedChange={(checked) =>
                             handleSpecificMonitorSettingChange(
@@ -1225,7 +1138,6 @@ const NotificationsConfig = () => {
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={specificSettings.onRecovery}
                           onCheckedChange={(checked) =>
                             handleSpecificMonitorSettingChange(
@@ -1277,7 +1189,7 @@ const NotificationsConfig = () => {
     }
 
     return (
-      <Flex direction="column" gap="5">
+      <Flex direction="column" gap="2">
         <Text size="2" color="gray" mb="3">
           {t("notifications.specificAgents.description")}
         </Text>
@@ -1298,16 +1210,11 @@ const NotificationsConfig = () => {
           };
 
           return (
-            <Card
-              key={agentId}
-              style={{ padding: "16px", marginBottom: "16px" }}
-            >
+            <Card key={agentId}>
               <Flex direction="column" gap="3">
                 <Flex justify="between" align="center">
                   <Box>
-                    <Text weight="medium" style={{ marginRight: "4px" }}>
-                      {agent.name}
-                    </Text>
+                    <Text weight="medium">{agent.name}</Text>
                     <Text size="1" color="gray">
                       {(() => {
                         try {
@@ -1340,7 +1247,6 @@ const NotificationsConfig = () => {
                     <Flex direction="column" gap="3">
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={specificSettings.onOffline}
                           onCheckedChange={(checked) =>
                             handleSpecificAgentSettingChange(
@@ -1357,7 +1263,6 @@ const NotificationsConfig = () => {
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={specificSettings.onRecovery}
                           onCheckedChange={(checked) =>
                             handleSpecificAgentSettingChange(
@@ -1374,7 +1279,6 @@ const NotificationsConfig = () => {
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={specificSettings.onCpuThreshold}
                           onCheckedChange={(checked) =>
                             handleSpecificAgentSettingChange(
@@ -1407,7 +1311,6 @@ const NotificationsConfig = () => {
                                 Number(e.target.value)
                               )
                             }
-                            style={{ width: "80px" }}
                           />
                           <Text size="2">
                             {t("notifications.threshold.percent")}
@@ -1417,7 +1320,6 @@ const NotificationsConfig = () => {
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={specificSettings.onMemoryThreshold}
                           onCheckedChange={(checked) =>
                             handleSpecificAgentSettingChange(
@@ -1450,7 +1352,6 @@ const NotificationsConfig = () => {
                                 Number(e.target.value)
                               )
                             }
-                            style={{ width: "80px" }}
                           />
                           <Text size="2">
                             {t("notifications.threshold.percent")}
@@ -1460,7 +1361,6 @@ const NotificationsConfig = () => {
 
                       <Flex align="center" gap="2">
                         <Switch
-                          size="1"
                           checked={specificSettings.onDiskThreshold}
                           onCheckedChange={(checked) =>
                             handleSpecificAgentSettingChange(
@@ -1493,7 +1393,6 @@ const NotificationsConfig = () => {
                                 Number(e.target.value)
                               )
                             }
-                            style={{ width: "80px" }}
                           />
                           <Text size="2">
                             {t("notifications.threshold.percent")}
@@ -1538,7 +1437,7 @@ const NotificationsConfig = () => {
     // 如果是编辑模式，确保表单中显示的是完整的现有配置
     // 所有的配置字段都已经在handleEditChannelClick函数中被正确解析并设置
     return (
-      <Dialog.Root
+      <Dialog
         open={isOpen}
         onOpenChange={(open) => {
           if (!open) {
@@ -1547,11 +1446,11 @@ const NotificationsConfig = () => {
           }
         }}
       >
-        <Dialog.Content style={{ maxWidth: "450px" }}>
-          <Dialog.Title>{title}</Dialog.Title>
-          <Dialog.Description size="2" mb="4">
+        <DialogContent>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>
             {t("notifications.channels.dialogDescription")}
-          </Dialog.Description>
+          </DialogDescription>
 
           <Flex direction="column" gap="3">
             <Box>
@@ -1579,7 +1478,7 @@ const NotificationsConfig = () => {
                 {t("common.type")}
               </Text>
               <Box mt="1">
-                <Select.Root
+                <Select
                   defaultValue={channelForm.type}
                   value={channelForm.type}
                   onValueChange={(value) => {
@@ -1618,31 +1517,33 @@ const NotificationsConfig = () => {
                     console.log(`[通知渠道] 选择类型: ${value}`); // 调试信息
                   }}
                 >
-                  <Select.Trigger style={{ width: "100%" }} />
-                  <Select.Content>
-                    <Select.Item value="telegram">
+                  <SelectTrigger >
+                    <SelectValue/>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="telegram">
                       {t("notifications.channels.type.telegram")}
-                    </Select.Item>
-                    <Select.Item value="resend">
+                    </SelectItem>
+                    <SelectItem value="resend">
                       {t("notifications.channels.type.resend")}
-                    </Select.Item>
-                    <Select.Item value="webhook" disabled>
+                    </SelectItem>
+                    <SelectItem value="webhook" disabled>
                       {t("notifications.channels.type.webhook")} (Coming Soon)
-                    </Select.Item>
-                    <Select.Item value="slack" disabled>
+                    </SelectItem>
+                    <SelectItem value="slack" disabled>
                       {t("notifications.channels.type.slack")} (Coming Soon)
-                    </Select.Item>
-                    <Select.Item value="dingtalk" disabled>
+                    </SelectItem>
+                    <SelectItem value="dingtalk" disabled>
                       {t("notifications.channels.type.dingtalk")} (Coming Soon)
-                    </Select.Item>
-                    <Select.Item value="wecom" disabled>
+                    </SelectItem>
+                    <SelectItem value="wecom" disabled>
                       {t("notifications.channels.type.wecom")} (Coming Soon)
-                    </Select.Item>
-                    <Select.Item value="feishu" disabled>
+                    </SelectItem>
+                    <SelectItem value="feishu" disabled>
                       {t("notifications.channels.type.feishu")} (Coming Soon)
-                    </Select.Item>
-                  </Select.Content>
-                </Select.Root>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </Box>
             </Box>
 
@@ -1784,68 +1685,63 @@ const NotificationsConfig = () => {
           </Flex>
 
           <Flex gap="3" mt="6" justify="end">
-            <Dialog.Close>
-              <Button variant="soft" color="gray" size="2">
-                {t("common.cancel")}
-              </Button>
-            </Dialog.Close>
-            <Button onClick={handleSaveChannel} disabled={saving} size="2">
+            <DialogClose>
+            {t("common.cancel")}
+            </DialogClose>
+            <Button
+              className="ml-auto"
+              variant="secondary"
+              onClick={handleSaveChannel}
+              disabled={saving}
+            >
               {saving ? t("common.savingChanges") : t("common.save")}
             </Button>
           </Flex>
-        </Dialog.Content>
-      </Dialog.Root>
+        </DialogContent>
+      </Dialog>
     );
   };
 
   // 渲染删除确认对话框
   const renderDeleteDialog = () => {
     return (
-      <Dialog.Root
+      <Dialog
         open={isDeleteChannelOpen}
         onOpenChange={(open) => {
           if (!open) setIsDeleteChannelOpen(false);
         }}
       >
-        <Dialog.Content style={{ maxWidth: "450px" }}>
-          <Dialog.Title>
+        <DialogContent>
+          <DialogTitle>
             {t("notifications.channels.deleteConfirmTitle")}
-          </Dialog.Title>
-          <Dialog.Description size="2" mb="4">
+          </DialogTitle>
+          <DialogDescription>
             {t("notifications.channels.deleteConfirmMessage")}
-          </Dialog.Description>
+          </DialogDescription>
 
           <Flex gap="3" mt="6" justify="end">
-            <Dialog.Close>
-              <Button variant="soft" color="gray" size="2">
-                {t("common.cancel")}
-              </Button>
-            </Dialog.Close>
+            <DialogClose>
+              {t("common.cancel")}
+            </DialogClose>
             <Button
               color="red"
               onClick={handleConfirmDeleteChannel}
               disabled={saving}
-              size="2"
             >
               {saving ? t("common.deleting") : t("common.delete")}
             </Button>
           </Flex>
-        </Dialog.Content>
-      </Dialog.Root>
+        </DialogContent>
+      </Dialog>
     );
   };
 
   return (
     <Box>
       <Container>
-        <div className="page-container detail-page">
-          {/* 美化顶部导航栏 */}
-          <Box mb="5">
+          <Box mb="2">
             <Flex
-              justify="between"
-              align="center"
-              className="detail-header"
-              py="3"
+              className="flex justify-between items-center detail-header"
             >
               <Flex align="center" gap="2">
                 <BellIcon width="20" height="20" />
@@ -1854,9 +1750,8 @@ const NotificationsConfig = () => {
                 </Heading>
               </Flex>
               <Button
-                variant="soft"
-                size="2"
-                className="nav-button config-button"
+              className="ml-auto"
+                variant="secondary"
                 onClick={handleSave}
                 disabled={saving}
               >
@@ -1871,145 +1766,55 @@ const NotificationsConfig = () => {
           {loading ? (
             <Text>{t("common.loading")}...</Text>
           ) : (
-            <div className="detail-content">
-              <Card size="2">
-                <Tabs.Root defaultValue="global" className="config-tabs">
-                  <Tabs.List className="config-tabs-list">
-                    <Tabs.Trigger value="global" className="tab-trigger">
+              <Card>
+                <Tabs defaultValue="global">
+                  <TabsList>
+                    <TabsTrigger value="global">
                       {t("notifications.tabs.global")}
-                    </Tabs.Trigger>
-                    <Tabs.Trigger value="channels" className="tab-trigger">
+                    </TabsTrigger>
+                    <TabsTrigger value="channels">
                       {t("notifications.tabs.channels")}
-                    </Tabs.Trigger>
-                    <Tabs.Trigger value="templates" className="tab-trigger">
+                    </TabsTrigger>
+                    <TabsTrigger value="templates">
                       {t("notifications.tabs.templates")}
-                    </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="specificMonitors"
-                      className="tab-trigger"
-                    >
+                    </TabsTrigger>
+                    <TabsTrigger value="specificMonitors">
                       {t("notifications.tabs.specificMonitors")}
-                    </Tabs.Trigger>
-                    <Tabs.Trigger
-                      value="specificAgents"
-                      className="tab-trigger"
-                    >
+                    </TabsTrigger>
+                    <TabsTrigger value="specificAgents">
                       {t("notifications.tabs.specificAgents")}
-                    </Tabs.Trigger>
-                  </Tabs.List>
+                    </TabsTrigger>
+                  </TabsList>
 
-                  <Box pt="5" px="2" className="tab-content-container">
-                    <Tabs.Content value="global" className="tab-content">
+                  <Box pt="2" px="2" >
+                    <TabsContent value="global">
                       {renderGlobalSettingsTab()}
-                    </Tabs.Content>
+                    </TabsContent>
 
-                    <Tabs.Content value="channels" className="tab-content">
+                    <TabsContent value="channels" >
                       {renderChannelsTab()}
-                    </Tabs.Content>
+                    </TabsContent>
 
-                    <Tabs.Content value="templates" className="tab-content">
+                    <TabsContent value="templates">
                       {renderTemplatesTab()}
-                    </Tabs.Content>
+                    </TabsContent>
 
-                    <Tabs.Content
+                    <TabsContent
                       value="specificMonitors"
-                      className="tab-content"
+                    
                     >
                       {renderSpecificMonitorsTab()}
-                    </Tabs.Content>
+                    </TabsContent>
 
-                    <Tabs.Content
-                      value="specificAgents"
-                      className="tab-content"
-                    >
+                    <TabsContent value="specificAgents">
                       {renderSpecificAgentsTab()}
-                    </Tabs.Content>
+                    </TabsContent>
                   </Box>
-                </Tabs.Root>
+                </Tabs>
               </Card>
-            </div>
+           
           )}
-        </div>
-
-        <Toast.Provider swipeDirection="right">
-          <Toast.Viewport className="ToastViewport" />
-
-          {showSuccessToast && (
-            <Toast.Root className="ToastRoot">
-              <Toast.Title>
-                <CheckCircledIcon
-                  color="var(--jade-9)"
-                  style={{ marginRight: "8px" }}
-                />
-                {toastMessage}
-              </Toast.Title>
-            </Toast.Root>
-          )}
-
-          {showErrorToast && (
-            <Toast.Root className="ToastRoot">
-              <Toast.Title>
-                <CrossCircledIcon
-                  color="var(--red-9)"
-                  style={{ marginRight: "8px" }}
-                />
-                {toastMessage}
-              </Toast.Title>
-            </Toast.Root>
-          )}
-
-          {showInfoToast && (
-            <Toast.Root
-              className="ToastRoot"
-              style={{ backgroundColor: "var(--blue-9)", borderRadius: "8px" }}
-            >
-              <div className="ToastContent">
-                <div
-                  className="ToastIcon"
-                  style={{
-                    backgroundColor: "var(--blue-10)",
-                    borderRadius: "50%",
-                    padding: "8px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <InfoCircledIcon color="white" width="18" height="18" />
-                </div>
-                <div className="ToastText">
-                  <div
-                    className="ToastTitle"
-                    style={{ fontSize: "15px", fontWeight: "600" }}
-                  >
-                    {t("common.info")}
-                  </div>
-                  <div
-                    className="ToastDescription"
-                    style={{ fontSize: "13px", opacity: "0.9" }}
-                  >
-                    {toastMessage}
-                  </div>
-                </div>
-                <Toast.Close
-                  className="ToastClose"
-                  style={{
-                    opacity: "0.8",
-                    backgroundColor: "transparent",
-                    border: "none",
-                    color: "white",
-                    fontSize: "20px",
-                    cursor: "pointer",
-                    padding: "4px 8px",
-                  }}
-                  aria-label={t("common.close")}
-                >
-                  ×
-                </Toast.Close>
-              </div>
-            </Toast.Root>
-          )}
-        </Toast.Provider>
+      
       </Container>
 
       {/* 渠道管理对话框 */}

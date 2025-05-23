@@ -1,7 +1,7 @@
-import { Box, Card, Flex, Text, Badge, Tabs } from "@radix-ui/themes";
+import { Box, Card, Flex, Text } from "@radix-ui/themes";
+import { Tabs, TabsContent, TabsList, TabsTrigger,Badge } from "./ui";
 import { GlobeIcon } from "@radix-ui/react-icons";
 import MetricsChart from "./MetricsChart";
-import "../styles/components.css";
 import { useTranslation } from "react-i18next";
 import { AgentCardProps, MetricType } from "../types";
 
@@ -66,7 +66,7 @@ const AgentCard = ({
   ];
 
   return (
-    <Card className="agent-card">
+    <Card>
       <Flex justify="between" align="center" p="4">
         <Flex direction="column" gap="1">
           <Flex align="center" gap="2">
@@ -105,17 +105,17 @@ const AgentCard = ({
 
       <Box p="2" pt="0">
         {/* 指标图表区域 */}
-        <Tabs.Root defaultValue="cpu">
-          <Tabs.List>
+        <Tabs defaultValue="cpu">
+          <TabsList>
             {metricTypes.map((type) => (
-              <Tabs.Trigger key={type} value={type}>
+              <TabsTrigger key={type} value={type}>
                 {t(`agent.metrics.${type}.title`) || type.toUpperCase()}
-              </Tabs.Trigger>
+              </TabsTrigger>
             ))}
-          </Tabs.List>
+          </TabsList>
 
           {metricTypes.map((type) => (
-            <Tabs.Content key={type} value={type}>
+            <TabsContent key={type} value={type}>
               <MetricsChart
                 history={agent.metrics}
                 metricType={type}
@@ -124,9 +124,9 @@ const AgentCard = ({
                 networkInterface="en0"
                 loadType="1"
               />
-            </Tabs.Content>
+            </TabsContent>
           ))}
-        </Tabs.Root>
+        </Tabs>
       </Box>
     </Card>
   );

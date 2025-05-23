@@ -5,7 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import i18n from "../locales/config";
+import i18n from "../i18n/config";
 import { LanguageContextType } from "../types/language";
 
 const availableLanguages = [

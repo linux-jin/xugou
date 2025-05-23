@@ -60,7 +60,8 @@ export async function createAgent(
   hostname: string | null = null,
   os: string | null = null,
   version: string | null = null,
-  ipAddresses: string[] | null = null
+  ipAddresses: string[] | null = null,
+  keepalive: string | null = null
 ) {
   const now = new Date().toISOString();
 
@@ -70,8 +71,8 @@ export async function createAgent(
   const result = await db
     .prepare(
       `INSERT INTO agents 
-     (name, token, created_by, status, created_at, updated_at, hostname, ip_addresses, os, version) 
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+     (name, token, created_by, status, created_at, updated_at, hostname, ip_addresses, os, version, keepalive) 
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`
     )
     .bind(
       name,
@@ -83,7 +84,8 @@ export async function createAgent(
       hostname,
       ipAddressesJson,
       os,
-      version
+      version,
+      keepalive
     )
     .run();
 
@@ -108,6 +110,7 @@ export async function updateAgent(
     os?: string;
     version?: string;
     status?: string;
+    keepalive?: string;
   }
 ) {
   const fieldsToUpdate = [];
@@ -191,7 +194,7 @@ export async function getAgentByToken(db: Bindings["DB"], token: string) {
 // 获取活跃状态的客户端
 export async function getActiveAgents(db: Bindings["DB"]) {
   return await db
-    .prepare('SELECT id, name, updated_at FROM agents WHERE status = "active"')
+    .prepare('SELECT id, name, updated_at, keepalive FROM agents WHERE status = "active"')
     .all();
 }
 
@@ -223,9 +226,4 @@ export async function getAgentMetrics(db: Bindings["DB"], agentId: number) {
     .prepare("SELECT * FROM agent_metrics_24h WHERE agent_id =?")
     .bind(agentId)
     .all();
-}
-
-// 获取所有客户端资源指标
-export async function getAllAgentMetrics(db: Bindings["DB"]) {
-  return await db.prepare("SELECT * FROM agent_metrics_24h").all<Metrics>();
 }

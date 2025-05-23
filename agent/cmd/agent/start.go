@@ -22,12 +22,6 @@ func init() {
 		Long:  `启动 Xugou Agent 开始采集系统信息并上报到服务器`,
 		Run:   runStart,
 	}
-
-	startCmd.Flags().IntP("interval", "i", 60, "数据采集和上报间隔（秒）")
-	startCmd.Flags().StringP("proxy", "p", "", "HTTP代理服务器地址（例如：http://proxy.example.com:8080）")
-	viper.BindPFlag("interval", startCmd.Flags().Lookup("interval"))
-	viper.BindPFlag("proxy", startCmd.Flags().Lookup("proxy"))
-
 	rootCmd.AddCommand(startCmd)
 }
 

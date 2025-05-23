@@ -1,23 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  Button,
-  Card,
-  Grid,
-  Badge,
-} from "@radix-ui/themes";
+import { Box, Flex, Heading, Text, Grid,Container } from "@radix-ui/themes";
+import { Button, Card, Badge } from "@/components/ui";
 import {
   ArrowLeftIcon,
   Pencil1Icon,
   TrashIcon,
   ReloadIcon,
-  Cross2Icon,
 } from "@radix-ui/react-icons";
-import * as Toast from "@radix-ui/react-toast";
+import { toast } from "sonner";
 import {
   getMonitor,
   deleteMonitor,
@@ -49,9 +40,6 @@ const MonitorDetail = () => {
     useState<MonitorWithDailyStatsAndStatusHistory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [toastOpen, setToastOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState<"success" | "error">("success");
   const { t } = useTranslation();
 
   // 组件加载时获取数据
@@ -102,13 +90,11 @@ const MonitorDetail = () => {
     setLoading(true);
     const response = await checkMonitor(parseInt(id));
     if (response.success) {
-      setToastMessage(t("monitor.checkCompleted"));
-      setToastType("success");
-      setToastOpen(true);
+  
+      toast.success(t("monitor.checkCompleted")); 
     } else {
-      setToastMessage(t("monitor.checkFailed"));
-      setToastType("error");
-      setToastOpen(true);
+
+      toast.error(t("monitor.checkFailed"));
     }
     setLoading(false);
   };
@@ -119,18 +105,16 @@ const MonitorDetail = () => {
 
     const response = await deleteMonitor(parseInt(id));
     if (response.success) {
-      setToastMessage(t("monitor.deleteSuccess"));
-      setToastType("success");
-      setToastOpen(true);
+    
+      toast.success(t("monitor.deleteSuccess")); // Added
 
       // 短暂延迟后导航，让用户有时间看到提示
       setTimeout(() => {
         navigate("/monitors");
       }, 1500);
     } else {
-      setToastMessage(t("monitor.deleteFailed"));
-      setToastType("error");
-      setToastOpen(true);
+  
+      toast.error(t("monitor.deleteFailed")); // Added
     }
   };
 
@@ -157,7 +141,7 @@ const MonitorDetail = () => {
         <Text style={{ color: "var(--red-9)" }}>
           {error || t("monitor.notExist")}
         </Text>
-        <Button variant="soft" onClick={() => navigate("/monitors")} mt="2">
+        <Button variant="secondary" onClick={() => navigate("/monitors")}>
           {t("monitor.returnToList")}
         </Button>
       </Box>
@@ -165,15 +149,10 @@ const MonitorDetail = () => {
   }
 
   return (
-    <Box className="monitor-detail" p="4">
-      <div>
+    <Container size="4">
         <Flex justify="between" align="center" className="detail-header">
           <Flex align="center" gap="2">
-            <Button
-              variant="soft"
-              size="1"
-              onClick={() => navigate("/monitors")}
-            >
+            <Button variant="secondary" onClick={() => navigate("/monitors")}>
               <ArrowLeftIcon />
             </Button>
             <Heading size="6">{monitor.name}</Heading>
@@ -186,18 +165,18 @@ const MonitorDetail = () => {
             </Badge>
           </Flex>
           <Flex gap="2">
-            <Button variant="soft" onClick={handleCheck}>
+            <Button variant="secondary" onClick={handleCheck}>
               <ReloadIcon />
               {t("monitor.manualCheck")}
             </Button>
             <Button
-              variant="soft"
+              variant="secondary"
               onClick={() => navigate(`/monitors/edit/${id}`)}
             >
               <Pencil1Icon />
               {t("monitor.edit")}
             </Button>
-            <Button variant="soft" color="red" onClick={handleDelete}>
+            <Button variant="secondary" onClick={handleDelete}>
               <TrashIcon />
               {t("monitor.delete")}
             </Button>
@@ -238,7 +217,7 @@ const MonitorDetail = () => {
             </Flex>
           </Card>
           {/* 添加响应时间图表 */}
-          <Card mt="4">
+          <Card>
             <Flex direction="column" gap="3" mt="4">
               <Heading size="4">{t("monitor.oneDayHistory")}</Heading>
               <Box>
@@ -249,7 +228,7 @@ const MonitorDetail = () => {
               </Box>
             </Flex>
           </Card>
-          <Card mt="4">
+          <Card>
             <Flex direction="column" gap="3">
               <Heading size="4">{t("monitor.MonthsHistory")}</Heading>
               <Box>
@@ -258,35 +237,7 @@ const MonitorDetail = () => {
             </Flex>
           </Card>
         </Box>
-        <Toast.Provider swipeDirection="right">
-          <Toast.Root
-            className="ToastRoot"
-            open={toastOpen}
-            onOpenChange={setToastOpen}
-            duration={3000}
-            style={{
-              backgroundColor:
-                toastType === "success" ? "var(--green-9)" : "var(--red-9)",
-              borderRadius: "8px",
-              zIndex: 9999,
-            }}
-          >
-            <Toast.Title className="ToastTitle">
-              {toastType === "success"
-                ? t("common.success")
-                : t("common.error")}
-            </Toast.Title>
-            <Toast.Description className="ToastDescription">
-              {toastMessage}
-            </Toast.Description>
-            <Toast.Close className="ToastClose">
-              <Cross2Icon />
-            </Toast.Close>
-          </Toast.Root>
-          <Toast.Viewport className="ToastViewport" />
-        </Toast.Provider>
-      </div>
-    </Box>
+    </Container>
   );
 };
 

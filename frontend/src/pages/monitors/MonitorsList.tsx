@@ -5,15 +5,29 @@ import {
   Flex,
   Heading,
   Text,
+  IconButton,
+  Grid,
+  Container,
+} from "@radix-ui/themes";
+import {
   Button,
   Table,
   Badge,
   Card,
-  IconButton,
-  Grid,
   Tabs,
   Dialog,
-} from "@radix-ui/themes";
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHeader,
+  TabsList,
+  TabsTrigger,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui";
+
 import {
   PlusIcon,
   Pencil1Icon,
@@ -160,7 +174,7 @@ const MonitorsList = () => {
   // 加载中显示
   if (loading) {
     return (
-      <Box className="page-container detail-page">
+      <Box>
         <Flex justify="center" align="center" p="4">
           <Text>{t("common.loading")}</Text>
         </Flex>
@@ -171,13 +185,13 @@ const MonitorsList = () => {
   // 错误显示
   if (error) {
     return (
-      <Box className="page-container detail-page">
-        <Card mb="4">
-          <Flex p="3" style={{ backgroundColor: "var(--red-3)" }}>
-            <Text style={{ color: "var(--red-9)" }}>{error}</Text>
+      <Box>
+        <Card>
+          <Flex>
+            <Text>{error}</Text>
           </Flex>
         </Card>
-        <Button variant="soft" onClick={() => window.location.reload()} mt="2">
+        <Button variant="secondary" onClick={() => window.location.reload()}>
           {t("monitors.retry")}
         </Button>
       </Box>
@@ -185,205 +199,181 @@ const MonitorsList = () => {
   }
 
   return (
-    <Box>
-      <div className="page-container detail-page">
-        <Flex justify="between" align="center" className="detail-header">
-          <Heading size="6">{t("monitors.pageTitle")}</Heading>
-          <Flex gap="3">
-            <Tabs.Root defaultValue="grid">
-              <Tabs.List>
-                <Tabs.Trigger value="grid" onClick={() => setView("grid")}>
-                  <ViewGridIcon />
-                </Tabs.Trigger>
-                <Tabs.Trigger value="list" onClick={() => setView("list")}>
-                  <LayoutIcon />
-                </Tabs.Trigger>
-              </Tabs.List>
-            </Tabs.Root>
-            <Button onClick={handleRefresh} disabled={loading}>
-              <ReloadIcon />
-              {t("monitors.refresh")}
-            </Button>
-            <Button onClick={() => navigate("/monitors/create")}>
-              <PlusIcon />
-              {t("monitors.create")}
-            </Button>
-          </Flex>
+    <Container size="4">
+      <Flex justify="between" align="center">
+        <Heading size="6">{t("monitors.pageTitle")}</Heading>
+        <Flex className="mt-4 space-x-2">
+          <Tabs defaultValue="grid">
+            <TabsList>
+              <TabsTrigger value="grid" onClick={() => setView("grid")}>
+                <ViewGridIcon />
+              </TabsTrigger>
+              <TabsTrigger value="list" onClick={() => setView("list")}>
+                <LayoutIcon />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Button
+            variant="secondary"
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            <ReloadIcon />
+            {t("monitors.refresh")}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => navigate("/monitors/create")}
+          >
+            <PlusIcon />
+            {t("monitors.create")}
+          </Button>
         </Flex>
+      </Flex>
 
-        <div className="detail-content">
-          {monitors.length === 0 ? (
-            <Card>
-              <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                p="6"
-                gap="3"
-              >
-                <Text>{t("monitors.notFound")}</Text>
-                <Button onClick={() => navigate("/monitors/create")}>
-                  <PlusIcon />
-                  {t("monitors.addOne")}
-                </Button>
-              </Flex>
-            </Card>
-          ) : view === "list" ? (
-            // 列表视图
-            <Table.Root variant="surface">
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeaderCell>
-                    {t("monitors.table.name")}
-                  </Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell>
-                    {t("monitors.table.url")}
-                  </Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell>
-                    {t("monitors.table.status")}
-                  </Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell>
-                    {t("monitors.table.responseTime")}
-                  </Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell>
-                    {t("monitors.table.actions")}
-                  </Table.ColumnHeaderCell>
-                </Table.Row>
-              </Table.Header>
+      <Container className="mt-4 space-x-2">
+        {monitors.length === 0 ? (
+          <Card>
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              p="6"
+              gap="3"
+            >
+              <Text>{t("monitors.notFound")}</Text>
+              <Button onClick={() => navigate("/monitors/create")}>
+                <PlusIcon />
+                {t("monitors.addOne")}
+              </Button>
+            </Flex>
+          </Card>
+        ) : view === "list" ? (
+          // 列表视图
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableCell>{t("monitors.table.name")}</TableCell>
+                <TableCell>{t("monitors.table.url")}</TableCell>
+                <TableCell>{t("monitors.table.status")}</TableCell>
+                <TableCell>{t("monitors.table.responseTime")}</TableCell>
+                <TableCell>{t("monitors.table.actions")}</TableCell>
+              </TableRow>
+            </TableHeader>
 
-              <Table.Body>
-                {monitors.map((monitor) => (
-                  <Table.Row key={`${monitor.id}-${Math.random()}`}>
-                    <Table.Cell>
-                      <Text weight="medium">{monitor.name}</Text>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Text style={{ wordBreak: "break-all" }}>
-                        {monitor.url}
-                      </Text>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Flex align="center" gap="2">
-                        <StatusIcon status={monitor.status} />
-                        <Badge color={statusColors[monitor.status]}>
-                          {monitor.status === "up"
-                            ? t("monitors.status.up")
-                            : monitor.status === "down"
-                            ? t("monitors.status.down")
-                            : t("monitor.status.pending")}
-                        </Badge>
-                      </Flex>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Text>
-                        {monitor.response_time
-                          ? `${monitor.response_time}ms`
-                          : "-"}
-                      </Text>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Flex gap="2">
-                        <IconButton
-                          variant="soft"
-                          onClick={() => navigate(`/monitors/${monitor.id}`)}
-                          title={t("monitors.viewDetails")}
-                        >
-                          <InfoCircledIcon />
-                        </IconButton>
-                        <IconButton
-                          variant="soft"
-                          onClick={() =>
-                            navigate(`/monitors/edit/${monitor.id}`)
-                          }
-                          title={t("monitors.edit")}
-                        >
-                          <Pencil1Icon />
-                        </IconButton>
-                        <IconButton
-                          variant="soft"
-                          color="red"
-                          onClick={() => handleDeleteClick(monitor.id)}
-                          title={t("monitors.delete")}
-                        >
-                          <TrashIcon />
-                        </IconButton>
-                      </Flex>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
-          ) : (
-            // 网格视图 - 使用 MonitorCard 组件
-            <Grid columns={{ initial: "1" }} gap="4">
+            <TableBody>
               {monitors.map((monitor) => (
-                <Box
-                  key={`${monitor.id}-${Math.random()}`}
-                  style={{ position: "relative" }}
-                >
-                  <MonitorCard monitor={monitor} />
-                  <Flex
-                    style={{
-                      position: "absolute",
-                      top: "10px",
-                      right: "10px",
-                      zIndex: 1,
-                    }}
-                    gap="2"
-                  >
-                    <IconButton
-                      variant="ghost"
-                      size="1"
-                      onClick={() => navigate(`/monitors/${monitor.id}`)}
-                      title={t("monitors.viewDetails")}
-                    >
-                      <InfoCircledIcon />
-                    </IconButton>
-                    <IconButton
-                      variant="ghost"
-                      size="1"
-                      onClick={() => navigate(`/monitors/edit/${monitor.id}`)}
-                      title={t("monitors.edit")}
-                    >
-                      <Pencil1Icon />
-                    </IconButton>
-                    <IconButton
-                      variant="ghost"
-                      size="1"
-                      color="red"
-                      onClick={() => handleDeleteClick(monitor.id)}
-                      title={t("monitors.delete")}
-                    >
-                      <TrashIcon />
-                    </IconButton>
-                  </Flex>
-                </Box>
+                <TableRow key={`${monitor.id}-${Math.random()}`}>
+                  <TableCell>
+                    <Text weight="medium">{monitor.name}</Text>
+                  </TableCell>
+                  <TableCell>
+                    <Text>{monitor.url}</Text>
+                  </TableCell>
+                  <TableCell>
+                    <Flex align="center" gap="2">
+                      <StatusIcon status={monitor.status} />
+                      <Badge color={statusColors[monitor.status]}>
+                        {monitor.status === "up"
+                          ? t("monitors.status.up")
+                          : monitor.status === "down"
+                          ? t("monitors.status.down")
+                          : t("monitor.status.pending")}
+                      </Badge>
+                    </Flex>
+                  </TableCell>
+                  <TableCell>
+                    <Text>
+                      {monitor.response_time
+                        ? `${monitor.response_time}ms`
+                        : "-"}
+                    </Text>
+                  </TableCell>
+                  <TableCell>
+                    <Flex gap="2">
+                      <IconButton
+                        variant="soft"
+                        onClick={() => navigate(`/monitors/${monitor.id}`)}
+                        title={t("monitors.viewDetails")}
+                      >
+                        <InfoCircledIcon />
+                      </IconButton>
+                      <IconButton
+                        variant="soft"
+                        onClick={() => navigate(`/monitors/edit/${monitor.id}`)}
+                        title={t("monitors.edit")}
+                      >
+                        <Pencil1Icon />
+                      </IconButton>
+                      <IconButton
+                        variant="soft"
+                        color="red"
+                        onClick={() => handleDeleteClick(monitor.id)}
+                        title={t("monitors.delete")}
+                      >
+                        <TrashIcon />
+                      </IconButton>
+                    </Flex>
+                  </TableCell>
+                </TableRow>
               ))}
-            </Grid>
-          )}
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        ) : (
+          // 网格视图 - 使用 MonitorCard 组件
+          <Grid columns={{ initial: "1" }} gap="4">
+            {monitors.map((monitor) => (
+              <Box key={`${monitor.id}-${Math.random()}`} className="relative">
+                <MonitorCard monitor={monitor} />
+                <Flex gap="2" className="absolute top-4 right-4">
+                  <IconButton
+                    variant="ghost"
+                    size="1"
+                    onClick={() => navigate(`/monitors/${monitor.id}`)}
+                    title={t("monitors.viewDetails")}
+                  >
+                    <InfoCircledIcon />
+                  </IconButton>
+                  <IconButton
+                    variant="ghost"
+                    size="1"
+                    onClick={() => navigate(`/monitors/edit/${monitor.id}`)}
+                    title={t("monitors.edit")}
+                  >
+                    <Pencil1Icon />
+                  </IconButton>
+                  <IconButton
+                    variant="ghost"
+                    size="1"
+                    color="red"
+                    onClick={() => handleDeleteClick(monitor.id)}
+                    title={t("monitors.delete")}
+                  >
+                    <TrashIcon />
+                  </IconButton>
+                </Flex>
+              </Box>
+            ))}
+          </Grid>
+        )}
+      </Container>
 
       {/* 删除确认对话框 */}
-      <Dialog.Root open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <Dialog.Content>
-          <Dialog.Title>{t("common.deleteConfirmation")}</Dialog.Title>
-          <Dialog.Description>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogTitle>{t("common.deleteConfirmation")}</DialogTitle>
+          <DialogDescription>
             {t("common.deleteConfirmMessage")}
-          </Dialog.Description>
+          </DialogDescription>
           <Flex gap="3" mt="4" justify="end">
-            <Dialog.Close>
-              <Button variant="soft" color="gray">
-                {t("common.cancel")}
-              </Button>
-            </Dialog.Close>
-            <Button color="red" onClick={handleDeleteConfirm}>
-              {t("common.delete")}
-            </Button>
+            <DialogClose>
+              <Button variant="secondary">{t("common.cancel")}</Button>
+            </DialogClose>
+            <Button onClick={handleDeleteConfirm}>{t("common.delete")}</Button>
           </Flex>
-        </Dialog.Content>
-      </Dialog.Root>
-    </Box>
+        </DialogContent>
+      </Dialog>
+    </Container>
   );
 };
 

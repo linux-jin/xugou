@@ -1,4 +1,14 @@
-import { Select, Text } from "@radix-ui/themes";
+import { Text } from "@radix-ui/themes";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectSeparator,
+  SelectValue,
+  SelectGroup,
+} from "./ui";
 
 // 状态码选项定义
 export const specificStatusCodes = [
@@ -61,47 +71,32 @@ const StatusCodeSelect = ({
 }: StatusCodeSelectProps) => {
   return (
     <>
-      <Select.Root
+      <Select
         name={name}
         value={value.toString()}
         onValueChange={(value) => onChange(parseInt(value))}
         required={required}
       >
-        <Select.Trigger style={{ width: "100%" }} />
-        <Select.Content position="popper" sideOffset={5}>
+        <SelectTrigger style={{ width: "100%" }}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent position="popper" sideOffset={5}>
           {specificStatusCodes.map((group) => (
-            <Select.Group key={group.group}>
-              <Select.Label
-                style={{
-                  fontWeight: "bold",
-                  padding: "8px 12px",
-                  color: "var(--gray-10)",
-                }}
-              >
-                {group.group}
-              </Select.Label>
+            <SelectGroup key={group.group}>
+              <SelectLabel>{group.group}</SelectLabel>
               {group.codes.map((code) => (
-                <Select.Item
-                  key={code.value}
-                  value={code.value.toString()}
-                  style={{
-                    padding: code.isRange
-                      ? "8px 12px 8px 30px"
-                      : "8px 12px 8px 40px",
-                    fontWeight: code.isRange ? "bold" : "normal",
-                  }}
-                >
+                <SelectItem key={code.value} value={code.value.toString()}>
                   {code.label}
-                </Select.Item>
+                </SelectItem>
               ))}
               {group !==
                 specificStatusCodes[specificStatusCodes.length - 1] && (
-                <Select.Separator style={{ margin: "8px 0" }} />
+                <SelectSeparator style={{ margin: "8px 0" }} />
               )}
-            </Select.Group>
+            </SelectGroup>
           ))}
-        </Select.Content>
-      </Select.Root>
+        </SelectContent>
+      </Select>
       <Text size="1" color="gray" style={{ marginTop: "4px" }}>
         选择预期的HTTP状态码或状态码范围
       </Text>

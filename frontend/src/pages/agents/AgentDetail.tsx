@@ -1,16 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  Box,
-  Flex,
-  Heading,
-  Text,
-  Button,
-  Card,
-  Badge,
-  Grid,
-  Avatar,
-} from "@radix-ui/themes";
+import { Box, Flex, Heading, Text, Grid, Container } from "@radix-ui/themes";
+
+import { Button, Card, Badge, Avatar, AvatarFallback } from "@/components/ui";
+
 import {
   ArrowLeftIcon,
   Pencil1Icon,
@@ -23,15 +16,11 @@ import {
   GlobeIcon,
   Link2Icon,
 } from "@radix-ui/react-icons";
-import * as Toast from "@radix-ui/react-toast";
-import {
-  getAgent,
-  deleteAgent,
-  getAgentMetrics,
-} from "../../api/agents";
+import { getAgent, deleteAgent, getAgentMetrics } from "../../api/agents";
 import { Agent } from "../../types/agents";
 import { useTranslation } from "react-i18next";
 import AgentCard from "../../components/AgentCard";
+import { toast } from "sonner"; // Added
 
 // 定义客户端状态颜色映射
 const statusColors: Record<string, "red" | "green" | "yellow" | "gray"> = {
@@ -48,9 +37,6 @@ const AgentDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [toastOpen, setToastOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState<"success" | "error">("success");
   const { t } = useTranslation();
 
   const fetchAgentData = async () => {
@@ -141,33 +127,21 @@ const AgentDetail = () => {
 
     try {
       setDeleteLoading(true);
-      // 显示正在删除的Toast消息
-      setToastMessage(t("agent.deleting"));
-      setToastType("success");
-      setToastOpen(true);
+      toast.loading(t("agent.deleting")); // Added
 
       const response = await deleteAgent(Number(id));
 
       if (response.success) {
-        // 显示删除成功的Toast消息
-        setToastMessage(t("agent.deleteSuccess"));
-        setToastType("success");
-        setToastOpen(true);
-
-        // 延长延迟时间，确保Toast消息有足够时间显示
+        toast.success(t("agent.deleteSuccess"));
         setTimeout(() => {
           navigate("/agents");
         }, 3000);
       } else {
-        setToastMessage(response.message || t("agent.deleteError"));
-        setToastType("error");
-        setToastOpen(true);
+        toast.error(response.message || t("agent.deleteError"));
       }
     } catch (error) {
       console.error("删除客户端失败:", error);
-      setToastMessage(t("agent.deleteError"));
-      setToastType("error");
-      setToastOpen(true);
+      toast.error(t("agent.deleteError"));
     } finally {
       setDeleteLoading(false);
     }
@@ -176,7 +150,7 @@ const AgentDetail = () => {
   if (loading) {
     return (
       <Box>
-        <Flex className="loading-container">
+        <Flex>
           <Text>{t("agents.loadingDetail")}</Text>
         </Flex>
       </Box>
@@ -186,7 +160,7 @@ const AgentDetail = () => {
   if (error) {
     return (
       <Box>
-        <Flex className="error-container">
+        <Flex>
           <Card>
             <Flex direction="column" align="center" gap="4">
               <Heading size="6">{t("common.loadingError")}</Heading>
@@ -204,7 +178,7 @@ const AgentDetail = () => {
   if (!agent) {
     return (
       <Box>
-        <Flex justify="center" align="center" style={{ minHeight: "60vh" }}>
+        <Flex justify="center" align="center">
           <Card>
             <Flex direction="column" align="center" gap="4">
               <Heading size="6">{t("agents.notFound")}</Heading>
@@ -220,10 +194,10 @@ const AgentDetail = () => {
   }
 
   return (
-    <Box className="page-container detail-page">
-      <Flex justify="between" align="center" className="detail-header">
+    <Container size="4">
+      <Flex justify="between" align="center">
         <Flex align="center" gap="2">
-          <Button variant="soft" size="1" onClick={() => navigate("/agents")}>
+          <Button variant="secondary" onClick={() => navigate("/agents")}>
             <ArrowLeftIcon />
           </Button>
           <Heading size="6">{t("agent.details")}</Heading>
@@ -234,17 +208,23 @@ const AgentDetail = () => {
           </Badge>
         </Flex>
         <Flex gap="2">
-          <Button variant="soft" onClick={handleRefresh} disabled={loading}>
+          <Button
+            variant="secondary"
+            onClick={handleRefresh}
+            disabled={loading}
+          >
             <ReloadIcon />
             {t("common.refresh")}
           </Button>
-          <Button variant="soft" onClick={() => navigate(`/agents/edit/${id}`)}>
+          <Button
+            variant="secondary"
+            onClick={() => navigate(`/agents/edit/${id}`)}
+          >
             <Pencil1Icon />
             {t("agent.edit")}
           </Button>
           <Button
-            variant="soft"
-            color="red"
+            variant="secondary"
             onClick={handleDelete}
             disabled={deleteLoading}
           >
@@ -254,10 +234,12 @@ const AgentDetail = () => {
         </Flex>
       </Flex>
 
-      <Box className="detail-content">
-        <Card mb="4">
+      <Box>
+        <Card>
           <Flex align="center" gap="4" mb="4">
-            <Avatar size="5" fallback={agent.name.charAt(0)} color="indigo" />
+            <Avatar>
+              <AvatarFallback>{agent.name.charAt(0)}</AvatarFallback>
+            </Avatar>
             <Box>
               <Heading size="5">{agent.name}</Heading>
             </Box>
@@ -415,33 +397,7 @@ const AgentDetail = () => {
           </Grid>
         </Box>
       </Box>
-
-      <Toast.Provider swipeDirection="right">
-        <Toast.Root
-          className={`ToastRoot`}
-          open={toastOpen}
-          onOpenChange={setToastOpen}
-          duration={3000}
-          style={{
-            backgroundColor:
-              toastType === "success" ? "var(--green-9)" : "var(--red-9)",
-            borderRadius: "8px",
-            zIndex: 9999,
-          }}
-        >
-          <Toast.Title className="ToastTitle">
-            {toastType === "success" ? t("common.success") : t("common.error")}
-          </Toast.Title>
-          <Toast.Description className="ToastDescription">
-            {toastMessage}
-          </Toast.Description>
-          <Toast.Close className="ToastClose">
-            <Cross2Icon />
-          </Toast.Close>
-        </Toast.Root>
-        <Toast.Viewport className="ToastViewport" />
-      </Toast.Provider>
-    </Box>
+    </Container>
   );
 };
 

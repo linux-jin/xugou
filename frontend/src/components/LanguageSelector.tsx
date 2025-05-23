@@ -1,5 +1,11 @@
 import React from "react";
-import { DropdownMenu, Button, Text, Flex } from "@radix-ui/themes";
+import { Text, Flex } from "@radix-ui/themes";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "./ui";
 import { GlobeIcon, CheckIcon } from "@radix-ui/react-icons";
 import { useLanguage } from "../providers/LanguageProvider";
 import { useTranslation } from "react-i18next";
@@ -9,20 +15,22 @@ const LanguageSelector: React.FC = () => {
   const { t } = useTranslation();
 
   return (
-    <DropdownMenu.Root>
-      <DropdownMenu.Trigger>
-        <Button variant="ghost" size="2" className="nav-button">
-          <Flex align="center" gap="1">
-            <GlobeIcon width="14" height="14" />
-            <Text size="2" className="language-text">
-              {currentLanguage === "zh-CN" ? "中文" : "English"}
-            </Text>
-          </Flex>
-        </Button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content align="end">
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Flex
+          align="center"
+          gap="1"
+          className="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        >
+          <GlobeIcon width="14" height="14" />
+          <Text size="2">
+            {currentLanguage === "zh-CN" ? "中文" : "English"}
+          </Text>
+        </Flex>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
         {availableLanguages.map((lang) => (
-          <DropdownMenu.Item
+          <DropdownMenuItem
             key={lang.code}
             onClick={() => changeLanguage(lang.code)}
           >
@@ -39,10 +47,10 @@ const LanguageSelector: React.FC = () => {
                 <CheckIcon width="14" height="14" />
               )}
             </Flex>
-          </DropdownMenu.Item>
+          </DropdownMenuItem>
         ))}
-      </DropdownMenu.Content>
-    </DropdownMenu.Root>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

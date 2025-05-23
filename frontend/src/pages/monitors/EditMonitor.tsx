@@ -5,14 +5,25 @@ import {
   Flex,
   Heading,
   Text,
+  TextField,
+  IconButton,
+  Container,
+} from "@radix-ui/themes";
+
+import {
   Button,
   Card,
-  TextField,
   Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
   Table,
-  IconButton,
-  TextArea,
-} from "@radix-ui/themes";
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableCell,
+  Textarea,
+} from "@/components/ui";
 import {
   ArrowLeftIcon,
   UpdateIcon,
@@ -217,7 +228,7 @@ const EditMonitor = () => {
   if (loadingData) {
     return (
       <Box>
-        <Flex justify="center" align="center" style={{ minHeight: "60vh" }}>
+        <Flex justify="center" align="center">
           <Text>{t("common.loading")}</Text>
         </Flex>
       </Box>
@@ -227,7 +238,7 @@ const EditMonitor = () => {
   if (error) {
     return (
       <Box>
-        <Flex justify="center" align="center" style={{ minHeight: "60vh" }}>
+        <Flex justify="center" align="center">
           <Card>
             <Flex direction="column" align="center" gap="4" p="4">
               <Heading size="6">{t("monitor.notExist")}</Heading>
@@ -243,13 +254,12 @@ const EditMonitor = () => {
   }
 
   return (
-    <Box>
+    <Container size="4">
       <div className="page-container detail-page">
         <Flex justify="between" align="center" className="detail-header">
           <Flex align="center" gap="2">
             <Button
-              variant="soft"
-              size="1"
+              variant="secondary"
               onClick={() => navigate(`/monitors/${id}`)}
             >
               <ArrowLeftIcon />
@@ -266,11 +276,7 @@ const EditMonitor = () => {
               <Box pt="2">
                 <Flex direction="column" gap="4">
                   <Box>
-                    <Text
-                      as="label"
-                      size="2"
-                      style={{ marginBottom: "4px", display: "block" }}
-                    >
+                    <Text as="label" size="2">
                       {t("monitor.form.name")} *
                     </Text>
                     <TextField.Input
@@ -283,11 +289,7 @@ const EditMonitor = () => {
                   </Box>
 
                   <Box>
-                    <Text
-                      as="label"
-                      size="2"
-                      style={{ marginBottom: "4px", display: "block" }}
-                    >
+                    <Text as="label" size="2">
                       URL *
                     </Text>
                     <TextField.Input
@@ -300,38 +302,30 @@ const EditMonitor = () => {
                   </Box>
 
                   <Box>
-                    <Text
-                      as="label"
-                      size="2"
-                      style={{ marginBottom: "4px", display: "block" }}
-                    >
+                    <Text as="label" size="2">
                       {t("monitor.form.method")} *
                     </Text>
-                    <Select.Root
+                    <Select
                       name="method"
                       value={formData.method}
                       onValueChange={(value) =>
                         setFormData((prev) => ({ ...prev, method: value }))
                       }
                     >
-                      <Select.Trigger />
-                      <Select.Content>
-                        <Select.Item value="GET">GET</Select.Item>
-                        <Select.Item value="POST">POST</Select.Item>
-                        <Select.Item value="PUT">PUT</Select.Item>
-                        <Select.Item value="DELETE">DELETE</Select.Item>
-                        <Select.Item value="HEAD">HEAD</Select.Item>
-                      </Select.Content>
-                    </Select.Root>
+                      <SelectTrigger />
+                      <SelectContent>
+                        <SelectItem value="GET">GET</SelectItem>
+                        <SelectItem value="POST">POST</SelectItem>
+                        <SelectItem value="PUT">PUT</SelectItem>
+                        <SelectItem value="DELETE">DELETE</SelectItem>
+                        <SelectItem value="HEAD">HEAD</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </Box>
 
                   <Flex gap="4">
-                    <Box style={{ flex: 1 }}>
-                      <Text
-                        as="label"
-                        size="2"
-                        style={{ marginBottom: "4px", display: "block" }}
-                      >
+                    <Box>
+                      <Text as="label" size="2">
                         {t("monitor.form.interval")} *
                       </Text>
                       <TextField.Input
@@ -347,12 +341,8 @@ const EditMonitor = () => {
                       </Text>
                     </Box>
 
-                    <Box style={{ flex: 1 }}>
-                      <Text
-                        as="label"
-                        size="2"
-                        style={{ marginBottom: "4px", display: "block" }}
-                      >
+                    <Box>
+                      <Text as="label" size="2">
                         {t("monitor.form.timeout")} *
                       </Text>
                       <TextField.Input
@@ -367,11 +357,7 @@ const EditMonitor = () => {
                   </Flex>
 
                   <Box>
-                    <Text
-                      as="label"
-                      size="2"
-                      style={{ marginBottom: "4px", display: "block" }}
-                    >
+                    <Text as="label" size="2">
                       {t("monitor.form.expectedStatus")} *
                     </Text>
                     <StatusCodeSelect
@@ -382,39 +368,25 @@ const EditMonitor = () => {
                   </Box>
 
                   <Box>
-                    <Text
-                      as="label"
-                      size="2"
-                      style={{ marginBottom: "4px", display: "block" }}
-                    >
+                    <Text as="label" size="2">
                       {t("monitor.form.headers")}
                     </Text>
-                    <Box
-                      style={{
-                        border: "1px solid var(--gray-6)",
-                        borderRadius: "6px",
-                        padding: "8px",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      <Table.Root>
-                        <Table.Header>
-                          <Table.Row>
-                            <Table.ColumnHeaderCell>
+                    <Box>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableCell>
                               {t("monitor.form.headerName")}
-                            </Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell>
+                            </TableCell>
+                            <TableCell>
                               {t("monitor.form.headerValue")}
-                            </Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell
-                              style={{ width: "40px" }}
-                            ></Table.ColumnHeaderCell>
-                          </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
+                            </TableCell>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {headers.map((header, index) => (
-                            <Table.Row key={index}>
-                              <Table.Cell>
+                            <TableRow key={index}>
+                              <TableCell>
                                 <TextField.Input
                                   placeholder={t(
                                     "monitor.form.headerNamePlaceholder"
@@ -428,8 +400,8 @@ const EditMonitor = () => {
                                     )
                                   }
                                 />
-                              </Table.Cell>
-                              <Table.Cell>
+                              </TableCell>
+                              <TableCell>
                                 <TextField.Input
                                   placeholder={t(
                                     "monitor.form.headerValuePlaceholder"
@@ -443,8 +415,8 @@ const EditMonitor = () => {
                                     )
                                   }
                                 />
-                              </Table.Cell>
-                              <Table.Cell>
+                              </TableCell>
+                              <TableCell>
                                 <IconButton
                                   variant="soft"
                                   color="red"
@@ -453,15 +425,14 @@ const EditMonitor = () => {
                                 >
                                   <TrashIcon />
                                 </IconButton>
-                              </Table.Cell>
-                            </Table.Row>
+                              </TableCell>
+                            </TableRow>
                           ))}
-                        </Table.Body>
-                      </Table.Root>
+                        </TableBody>
+                      </Table>
                       <Flex justify="end" mt="2">
                         <Button
-                          size="1"
-                          variant="soft"
+                          variant="secondary"
                           onClick={() =>
                             setHeaders([...headers, { key: "", value: "" }])
                           }
@@ -478,19 +449,14 @@ const EditMonitor = () => {
 
                   {showBodyField && (
                     <Box>
-                      <Text
-                        as="label"
-                        size="2"
-                        style={{ marginBottom: "4px", display: "block" }}
-                      >
+                      <Text as="label" size="2">
                         {t("monitor.form.body")}
                       </Text>
-                      <TextArea
+                      <Textarea
                         name="body"
                         value={formData.body}
                         onChange={handleChange}
                         placeholder={t("monitor.form.bodyPlaceholder")}
-                        style={{ minHeight: "100px" }}
                       />
                     </Box>
                   )}
@@ -499,7 +465,7 @@ const EditMonitor = () => {
 
               <Flex justify="end" mt="4" gap="2">
                 <Button
-                  variant="soft"
+                  variant="secondary"
                   onClick={() => navigate(`/monitors/${id}`)}
                 >
                   {t("monitor.form.cancel")}
@@ -515,7 +481,7 @@ const EditMonitor = () => {
           </Card>
         </div>
       </div>
-    </Box>
+    </Container>
   );
 };
 

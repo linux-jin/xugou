@@ -1,5 +1,16 @@
 import React, { useMemo, useState } from "react";
-import { Box, Tooltip, Text, Dialog, Flex, Button } from "@radix-ui/themes";
+import { Box, Text, Flex } from "@radix-ui/themes";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  Button,
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogClose,
+} from "./ui";
 import { useTranslation } from "react-i18next";
 import { DailyStats } from "../types/monitors";
 
@@ -18,7 +29,8 @@ interface StatusBarProps {
  */
 const StatusBar: React.FC<StatusBarProps> = ({ dailyStats = [] }) => {
   const { t } = useTranslation();
-  const [selectedDayData, setSelectedDayData] = useState<EnrichedDailyStats | null>(null);
+  const [selectedDayData, setSelectedDayData] =
+    useState<EnrichedDailyStats | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // console.log("StatusBar组件的dailyStats: ", dailyStats); // 调试信息可以暂时注释或移除
@@ -95,13 +107,13 @@ const StatusBar: React.FC<StatusBarProps> = ({ dailyStats = [] }) => {
       >
         {dailyHistory?.map((dayData) => {
           // 确保 dayData 和 monitor_id 存在
-          const key = dayData && dayData.monitor_id
-                      ? `${dayData.monitor_id}-${dayData.date}-${Math.random()}`
-                      : `day-${dayData?.date}-${Math.random()}`;
+          const key =
+            dayData && dayData.monitor_id
+              ? `${dayData.monitor_id}-${dayData.date}-${Math.random()}`
+              : `day-${dayData?.date}-${Math.random()}`;
           return (
-            <Tooltip
-              key={key}
-              content={
+            <Tooltip key={key}>
+              <TooltipContent>
                 <>
                   <Text as="span" size="1" mb="1">
                     {t("common.date")}:{" "}
@@ -122,34 +134,41 @@ const StatusBar: React.FC<StatusBarProps> = ({ dailyStats = [] }) => {
                     {dayData.availability.toFixed(2)}%
                   </Text>
                 </>
-              }
-            >
-              <Box
-                style={{
-                  width: "100%",
-                  height: "50px",
-                  backgroundColor: getColor(dayData.status),
-                  borderRadius: "2px",
-                  transition: "background-color 0.2s",
-                  cursor: "pointer",
-                  padding: "0",
-                }}
-                onClick={() => handleDayClick(dayData)}
-              />
+              </TooltipContent>
+              <TooltipTrigger>
+                <Box
+                  style={{
+                    width: "100%",
+                    height: "50px",
+                    backgroundColor: getColor(dayData.status),
+                    borderRadius: "2px",
+                    transition: "background-color 0.2s",
+                    cursor: "pointer",
+                    padding: "0",
+                  }}
+                  onClick={() => handleDayClick(dayData)}
+                />
+              </TooltipTrigger>
             </Tooltip>
           );
         })}
       </Box>
 
       {selectedDayData && (
-        <Dialog.Root open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <Dialog.Trigger />
-          <Dialog.Content style={{ maxWidth: 450 }}>
-            <Dialog.Title>
-              {t(`📅 ${new Date(selectedDayData.date).toLocaleDateString()} ${t("common.status")}: ${selectedDayData.status === "up"
-                  ? t("monitor.status.normal")
-                  : t("monitor.status.failure")}`)}
-            </Dialog.Title>
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogTrigger />
+          <DialogContent style={{ maxWidth: 450 }}>
+            <DialogTitle>
+              {t(
+                `📅 ${new Date(selectedDayData.date).toLocaleDateString()} ${t(
+                  "common.status"
+                )}: ${
+                  selectedDayData.status === "up"
+                    ? t("monitor.status.normal")
+                    : t("monitor.status.failure")
+                }`
+              )}
+            </DialogTitle>
 
             <Flex direction="column" gap="3">
               <Text as="div" size="2">
@@ -183,14 +202,14 @@ const StatusBar: React.FC<StatusBarProps> = ({ dailyStats = [] }) => {
             </Flex>
 
             <Flex gap="3" mt="4" justify="end">
-              <Dialog.Close>
-                <Button variant="soft" color="gray">
+              <DialogClose>
+                <Button variant="secondary" color="gray">
                   {t("common.close")}
                 </Button>
-              </Dialog.Close>
+              </DialogClose>
             </Flex>
-          </Dialog.Content>
-        </Dialog.Root>
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );

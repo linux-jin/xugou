@@ -356,6 +356,7 @@ export async function updateAgentStatusService(
       hostname: statusData[0]?.hostname,
       os: statusData[0]?.os,
       version: statusData[0]?.version,
+      keepalive: statusData[0]?.keepalive,
       status: "active",
     };
 
@@ -474,8 +475,4 @@ export async function setAgentInactive(env: any, id: number) {
 
 export async function getAgentMetrics(db: Bindings["DB"], agentId: number) {
   return await AgentRepository.getAgentMetrics(db, agentId);
-}
-
-export async function getAllAgentMetrics(db: Bindings["DB"]) {
-  return await AgentRepository.getAllAgentMetrics(db);
 }

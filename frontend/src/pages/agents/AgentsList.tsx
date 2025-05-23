@@ -5,15 +5,29 @@ import {
   Flex,
   Heading,
   Text,
+  IconButton,
+  Grid,
+  Container,
+} from "@radix-ui/themes";
+import {
   Button,
   Card,
   Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
   Badge,
-  IconButton,
   Dialog,
-  Grid,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
   Tabs,
-} from "@radix-ui/themes";
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui";
+
 import {
   PlusIcon,
   Pencil1Icon,
@@ -23,11 +37,7 @@ import {
   ViewGridIcon,
   TrashIcon,
 } from "@radix-ui/react-icons";
-import {
-  getAllAgents,
-  deleteAgent,
-  getAllAgentMetrics,
-} from "../../api/agents";
+import { getAllAgents, deleteAgent, getAgentMetrics } from "../../api/agents";
 import AgentCard from "../../components/AgentCard";
 import { useTranslation } from "react-i18next";
 import { Agent } from "../../types";
@@ -68,19 +78,23 @@ const AgentsList = () => {
     setError(null);
     // 获取所有客户端
     const response = await getAllAgents();
-    // 获取所有客户端的指标数据
-    const metricsResponse = await getAllAgentMetrics();
 
-    if (response.agents && metricsResponse.metrics) {
+    if (response.agents) {
       // 合并指标数据到客户端数据
-      const agentsWithMetrics = response.agents.map((agent) => {
-        const metrics = metricsResponse.metrics?.filter(
-          (metric) => metric.agent_id === agent.id
-        );
-        console.log("获取到的 metrics 数据: ", metrics);
-        console.log("获取到的 agent 数据: ", agent);
-        return { ...agent, metrics };
-      });
+      const agentsWithMetrics = await Promise.all(
+        response.agents.map(async (agent) => {
+          // 获取指定客户端的指标数据
+          const metricsResponse = await getAgentMetrics(agent.id);
+          if (!metricsResponse.success) {
+            console.error("获取指标数据失败:", metricsResponse.message);
+            return agent; // 返回原始客户端数据
+          }
+          const metrics = metricsResponse.agent;
+          console.log("获取到的 metrics 数据: ", metrics);
+          console.log("获取到的 agent 数据: ", agent);
+          return { ...agent, metrics };
+        })
+      );
       setAgents(agentsWithMetrics);
     }
     console.log("获取到的 agent 数据: ", response);
@@ -128,17 +142,9 @@ const AgentsList = () => {
     return (
       <Grid columns={{ initial: "1" }} gap="4">
         {agents.map((agent) => (
-          <Box key={agent.id} style={{ position: "relative" }}>
+          <Box key={agent.id} className="relative">
             <AgentCard agent={agent} />
-            <Flex
-              style={{
-                position: "absolute",
-                top: "10px",
-                right: "10px",
-                zIndex: 1,
-              }}
-              gap="2"
-            >
+            <Flex gap="2" className="absolute top-4 right-4">
               <IconButton
                 variant="ghost"
                 size="1"
@@ -174,42 +180,28 @@ const AgentsList = () => {
   // 展示表格视图
   const renderTableView = () => {
     return (
-      <Table.Root variant="surface">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeaderCell>
-              {t("agents.table.name")}
-            </Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>
-              {t("agents.table.host")}
-            </Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>
-              {t("agents.table.ip")}
-            </Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>
-              {t("agents.table.status")}
-            </Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>
-              {t("agents.table.os")}
-            </Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>
-              {t("agents.table.version")}
-            </Table.ColumnHeaderCell>
-            <Table.ColumnHeaderCell>
-              {t("agents.table.actions")}
-            </Table.ColumnHeaderCell>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableCell>{t("agents.table.name")}</TableCell>
+            <TableCell>{t("agents.table.host")}</TableCell>
+            <TableCell>{t("agents.table.ip")}</TableCell>
+            <TableCell>{t("agents.table.status")}</TableCell>
+            <TableCell>{t("agents.table.os")}</TableCell>
+            <TableCell>{t("agents.table.version")}</TableCell>
+            <TableCell>{t("agents.table.actions")}</TableCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {agents.map((agent) => (
-            <Table.Row key={agent.id}>
-              <Table.Cell>
+            <TableRow key={agent.id}>
+              <TableCell>
                 <Text weight="medium">{agent.name}</Text>
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <Text>{agent.hostname || t("common.notFound")}</Text>
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <Text>
                   {agent.ip_addresses
                     ? (() => {
@@ -226,8 +218,8 @@ const AgentsList = () => {
                       })()
                     : t("common.notFound")}
                 </Text>
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <Badge color={statusColors[agent.status || "unknown"]}>
                   {agent.status === "active"
                     ? t("agent.status.online")
@@ -235,14 +227,14 @@ const AgentsList = () => {
                     ? t("agent.status.connecting")
                     : t("agent.status.offline")}
                 </Badge>
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <Text>{agent.os || t("common.notFound")}</Text>
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <Text>{agent.version || t("common.notFound")}</Text>
-              </Table.Cell>
-              <Table.Cell>
+              </TableCell>
+              <TableCell>
                 <Flex gap="2">
                   <IconButton
                     variant="soft"
@@ -264,18 +256,18 @@ const AgentsList = () => {
                     <TrashIcon />
                   </IconButton>
                 </Flex>
-              </Table.Cell>
-            </Table.Row>
+              </TableCell>
+            </TableRow>
           ))}
-        </Table.Body>
-      </Table.Root>
+        </TableBody>
+      </Table>
     );
   };
 
   // 加载中显示
   if (loading) {
     return (
-      <Box className="page-container detail-page">
+      <Box>
         <Flex justify="center" align="center" p="4">
           <Text>{t("common.loading")}</Text>
         </Flex>
@@ -287,12 +279,12 @@ const AgentsList = () => {
   if (error) {
     return (
       <Box className="page-container detail-page">
-        <Card mb="4">
-          <Flex p="3" style={{ backgroundColor: "var(--red-3)" }}>
-            <Text style={{ color: "var(--red-9)" }}>{error}</Text>
+        <Card>
+          <Flex>
+            <Text>{error}</Text>
           </Flex>
         </Card>
-        <Button variant="soft" onClick={() => window.location.reload()} mt="2">
+        <Button variant="secondary" onClick={() => window.location.reload()}>
           {t("common.retry")}
         </Button>
       </Box>
@@ -300,98 +292,101 @@ const AgentsList = () => {
   }
 
   return (
-    <Box>
-      <div className="page-container detail-page">
-        <Flex justify="between" align="center" className="detail-header">
-          <Heading size="6">{t("agents.pageTitle")}</Heading>
-          <Flex gap="3">
-            <Tabs.Root defaultValue="card">
-              <Tabs.List>
-                <Tabs.Trigger
-                  value="card"
-                  onClick={() => setViewMode("card")}
-                  title={t("agents.cardView")}
-                >
-                  <ViewGridIcon />
-                </Tabs.Trigger>
-                <Tabs.Trigger
-                  value="table"
-                  onClick={() => setViewMode("table")}
-                  title={t("agents.tableView")}
-                >
-                  <LayoutIcon />
-                </Tabs.Trigger>
-              </Tabs.List>
-            </Tabs.Root>
-            <Button onClick={handleRefresh} disabled={loading}>
-              <ReloadIcon />
-              {t("common.refresh")}
-            </Button>
-            <Button
-              onClick={() => {
-                console.log(
-                  "点击添加客户端按钮(空列表)，准备导航到/agents/create"
-                );
-                try {
-                  navigate("/agents/create");
-                } catch (err) {
-                  console.error("导航到添加客户端页面失败:", err);
-                }
-              }}
-            >
-              <PlusIcon />
-              {t("agents.create")}
-            </Button>
-          </Flex>
-        </Flex>
-
-        <div className="detail-content">
-          {agents.length === 0 ? (
-            <Card>
-              <Flex
-                direction="column"
-                align="center"
-                justify="center"
-                p="6"
-                gap="3"
+    <Container size="4">
+      <Flex justify="between" align="center">
+        <Heading size="6">{t("agents.pageTitle")}</Heading>
+        <Flex gap="3">
+          <Tabs defaultValue="card">
+            <TabsList>
+              <TabsTrigger
+                value="card"
+                onClick={() => setViewMode("card")}
+                title={t("agents.cardView")}
               >
-                <Text>{t("agents.noAgents")}</Text>
-                <Button onClick={() => navigate("/agents/create")}>
-                  <PlusIcon />
-                  {t("agents.create")}
-                </Button>
-              </Flex>
-            </Card>
-          ) : viewMode === "table" ? (
-            // 表格视图
-            renderTableView()
-          ) : (
-            // 卡片视图
-            renderCardView()
-          )}
-        </div>
-      </div>
+                <ViewGridIcon />
+              </TabsTrigger>
+              <TabsTrigger
+                value="table"
+                onClick={() => setViewMode("table")}
+                title={t("agents.tableView")}
+              >
+                <LayoutIcon />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Button
+            variant="secondary"
+            onClick={handleRefresh}
+            disabled={loading}
+          >
+            <ReloadIcon />
+            {t("common.refresh")}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              console.log(
+                "点击添加客户端按钮(空列表)，准备导航到/agents/create"
+              );
+              try {
+                navigate("/agents/create");
+              } catch (err) {
+                console.error("导航到添加客户端页面失败:", err);
+              }
+            }}
+          >
+            <PlusIcon />
+            {t("agents.create")}
+          </Button>
+        </Flex>
+      </Flex>
+
+      <Box className="mt-4 space-x-2">
+        {agents.length === 0 ? (
+          <Card>
+            <Flex
+              direction="column"
+              align="center"
+              justify="center"
+              p="6"
+              gap="3"
+            >
+              <Text>{t("agents.noAgents")}</Text>
+              <Button onClick={() => navigate("/agents/create")}>
+                <PlusIcon />
+                {t("agents.create")}
+              </Button>
+            </Flex>
+          </Card>
+        ) : viewMode === "table" ? (
+          // 表格视图
+          renderTableView()
+        ) : (
+          // 卡片视图
+          renderCardView()
+        )}
+      </Box>
 
       {/* 删除确认对话框 */}
-      <Dialog.Root open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <Dialog.Content>
-          <Dialog.Title>{t("common.deleteConfirmation")}</Dialog.Title>
-          <Dialog.Description>
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogTitle>{t("common.deleteConfirmation")}</DialogTitle>
+          <DialogDescription>
             {t("common.deleteConfirmMessage")}
-          </Dialog.Description>
+          </DialogDescription>
           <Flex gap="3" mt="4" justify="end">
-            <Dialog.Close>
-              <Button variant="soft" color="gray">
+            <DialogClose asChild>
+              <Button variant="secondary" color="gray">
                 {t("common.cancel")}
               </Button>
-            </Dialog.Close>
+            </DialogClose>
             <Button color="red" onClick={handleDeleteConfirm}>
               {t("common.delete")}
             </Button>
           </Flex>
-        </Dialog.Content>
-      </Dialog.Root>
-    </Box>
+        </DialogContent>
+      </Dialog>
+    </Container>
   );
 };
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Button, Card, Flex, Heading, Text } from "@radix-ui/themes";
+import { Flex, Heading, Text } from "@radix-ui/themes";
+import { Button, Card, Input } from "@/components/ui";
 import { useAuth } from "../../providers/AuthProvider";
 import { useTranslation } from "react-i18next";
 
@@ -69,26 +70,21 @@ const Login = () => {
 
             <form onSubmit={handleSubmit}>
               <Flex direction="column" gap="3">
-                <div className="input-wrapper">
-                  <input
-                    placeholder={t("login.username")}
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    className="text-input"
-                  />
-                </div>
-
-                <div className="input-wrapper">
-                  <input
-                    placeholder={t("login.password")}
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="text-input"
-                  />
-                </div>
+                <Input
+                  placeholder={t("login.username")}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="text-gray-900"
+                />
+                <Input
+                  placeholder={t("login.password")}
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="text-gray-900"
+                />
 
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? t("common.loading") : t("login.button")}

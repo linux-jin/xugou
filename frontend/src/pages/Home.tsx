@@ -1,4 +1,5 @@
-import { Box, Flex, Heading, Text, Button, Card, Grid } from "@radix-ui/themes";
+import { Box, Flex, Heading, Text, Grid } from "@radix-ui/themes";
+import { Button, Card } from "@/components/ui";
 import { Link } from "react-router-dom";
 import {
   ActivityLogIcon,
@@ -33,15 +34,15 @@ const Home = () => {
 
           <Flex gap="4" mt="4">
             {isAuthenticated ? (
-              <Button size="3" asChild>
+              <Button asChild>
                 <Link to="/dashboard">{t("home.getStarted")}</Link>
               </Button>
             ) : (
               <>
-                <Button size="3" asChild>
+                <Button asChild>
                   <Link to="/login">{t("home.getStarted")}</Link>
                 </Button>
-                <Button size="3" asChild>
+                <Button asChild>
                   <a
                     href="https://github.com/zaunist/xugou"
                     target="_blank"
@@ -61,28 +62,28 @@ const Home = () => {
             {t("home.features.title")}
           </Heading>
           <Grid columns={{ initial: "1", sm: "2", md: "4" }} gap="4">
-            <Card size="3">
+            <Card>
               <Flex direction="column" gap="2" align="center" p="4">
                 <ActivityLogIcon width="32" height="32" />
                 <Heading size="4">{t("home.features.monitoring")}</Heading>
                 <Text align="center">{t("home.features.monitoring.desc")}</Text>
               </Flex>
             </Card>
-            <Card size="3">
+            <Card>
               <Flex direction="column" gap="2" align="center" p="4">
                 <DesktopIcon width="32" height="32" />
                 <Heading size="4">{t("home.features.dashboard")}</Heading>
                 <Text align="center">{t("home.features.dashboard.desc")}</Text>
               </Flex>
             </Card>
-            <Card size="3">
+            <Card>
               <Flex direction="column" gap="2" align="center" p="4">
                 <LightningBoltIcon width="32" height="32" />
                 <Heading size="4">{t("home.features.alerts")}</Heading>
                 <Text align="center">{t("home.features.alerts.desc")}</Text>
               </Flex>
             </Card>
-            <Card size="3">
+            <Card>
               <Flex direction="column" gap="2" align="center" p="4">
                 <MixerHorizontalIcon width="32" height="32" />
                 <Heading size="4">{t("home.features.statusPage")}</Heading>

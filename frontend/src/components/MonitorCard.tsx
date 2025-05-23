@@ -1,11 +1,11 @@
-import { Box, Card, Flex, Text, Badge } from "@radix-ui/themes";
+import { Box, Flex, Text } from "@radix-ui/themes";
 import {
   CheckCircledIcon,
   CrossCircledIcon,
   QuestionMarkCircledIcon,
 } from "@radix-ui/react-icons";
+import { Card, Badge } from "./ui";
 import { MonitorWithDailyStatsAndStatusHistory } from "../types/monitors";
-import "../styles/components.css";
 import { useTranslation } from "react-i18next";
 import StatusBar from "./StatusBar";
 import ResponseTimeChart from "./ResponseTimeChart";
@@ -60,7 +60,7 @@ const MonitorCard = ({ monitor }: MonitorCardProps) => {
   const currentStatus = monitor.status || "pending";
 
   return (
-    <Card className="monitor-card">
+    <Card>
       <Flex justify="between" align="start" p="4" gap="2" direction="column">
         <Flex justify="between" align="center" style={{ width: "100%" }}>
           <Flex align="center" gap="2">

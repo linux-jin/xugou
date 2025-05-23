@@ -240,23 +240,13 @@ export async function getStatusPagePublicData(env: { DB: Bindings["DB"] }) {
     }
   }
 
-  // 获取客户端详细信息
+  // 获取客户端基本信息
   let agents: Agent[] = [];
   if (selectedAgents.results && selectedAgents.results.length > 0) {
     const agentIds = selectedAgents.results.map((a) => a.agent_id);
 
     if (agentIds.length > 0) {
       const agentsResult = await repositories.getAgentsByIds(env.DB, agentIds);
-      const agentsMetricsResult =
-        await repositories.getAgentMetricsByIds(env.DB, agentIds);
-      if (agentsMetricsResult.results) {
-        for (const agent of agentsResult.results || []) {
-          const agentMetrics = agentsMetricsResult.results.filter(
-            (m) => m.agent_id === agent.id
-          );
-          agent.metrics = agentMetrics;
-        }
-      }
 
       if (agentsResult.results) {
         agents = agentsResult.results;

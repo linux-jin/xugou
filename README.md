@@ -60,7 +60,7 @@ XUGOU 采用现代化的系统架构，包含以下组件：
 
 ### 视频教程
 
-还没录
+[![XUGOU 视频教程](https://img.youtube.com/vi/jisEpcqDego/0.jpg)](https://youtu.be/J7_xtsJIYiM)
 
 ## 常见问题
 

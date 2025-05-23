@@ -10,6 +10,7 @@ type SystemInfo struct {
 	Platform    string        `json:"platform"`
 	OS          string        `json:"os"`
 	Version     string        `json:"version"` // 操作系统版本
+	Keepalive   int           `json:"keepalive"`
 	CPUInfo     CPUInfo       `json:"cpu"`
 	MemoryInfo  MemoryInfo    `json:"memory"`
 	DiskInfo    []DiskInfo    `json:"disks"`

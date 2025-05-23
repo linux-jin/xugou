@@ -6,6 +6,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/spf13/viper"
+
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/host"
@@ -34,6 +36,7 @@ func NewCollector() Collector {
 func (c *DefaultCollector) Collect(ctx context.Context) (*model.SystemInfo, error) {
 	info := &model.SystemInfo{
 		Timestamp: time.Now(),
+		Keepalive: config.Interval,
 	}
 
 	info.Token = config.Token
@@ -85,14 +88,30 @@ func (c *DefaultCollector) Collect(ctx context.Context) (*model.SystemInfo, erro
 	}
 
 	// 获取磁盘信息
+	configDevices := viper.GetStringSlice("devices")
+	deviceSet := make(map[string]struct{})
+	for _, d := range configDevices {
+		deviceSet[d] = struct{}{}
+	}
+
 	partitions, err := disk.Partitions(false)
 	if err != nil {
 		return nil, fmt.Errorf("获取磁盘分区信息失败: %w", err)
 	}
 
 	for _, partition := range partitions {
+		// 如果指定了设备列表，并且当前分区不在列表中，则跳过
+		if len(configDevices) > 0 {
+			_, deviceMatch := deviceSet[partition.Device]
+			_, mountpointMatch := deviceSet[partition.Mountpoint]
+			if !deviceMatch && !mountpointMatch {
+				continue
+			}
+		}
+
 		usage, err := disk.Usage(partition.Mountpoint)
 		if err != nil {
+			// log.Printf("获取磁盘 %s 使用情况失败: %v", partition.Mountpoint, err) // 可选的日志记录
 			continue
 		}
 
@@ -109,12 +128,24 @@ func (c *DefaultCollector) Collect(ctx context.Context) (*model.SystemInfo, erro
 	}
 
 	// 获取网络信息
+	configInterfaces := viper.GetStringSlice("interfaces")
+	interfaceSet := make(map[string]struct{})
+	for _, i := range configInterfaces {
+		interfaceSet[i] = struct{}{}
+	}
+
 	netIOCounters, err := net.IOCounters(true)
 	if err != nil {
 		return nil, fmt.Errorf("获取网络信息失败: %w", err)
 	}
 
 	for _, netIO := range netIOCounters {
+		// 如果指定了接口列表，并且当前接口不在列表中，则跳过
+		if len(configInterfaces) > 0 {
+			if _, ok := interfaceSet[netIO.Name]; !ok {
+				continue
+			}
+		}
 		networkInfo := model.NetworkInfo{
 			Interface:   netIO.Name,
 			BytesSent:   netIO.BytesSent,

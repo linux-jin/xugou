@@ -11,7 +11,6 @@ import {
   registerAgentService,
   updateAgentStatusService,
   getAgentMetrics,
-  getAllAgentMetrics,
 } from "../services/AgentService";
 
 const agents = new Hono<{
@@ -168,20 +167,6 @@ agents.get("/:id/metrics", async (c) => {
     200
   )
 })
-
-// 获取所有客户端的指标
-agents.get("/metrics", async (c) => {
-  const result = await getAllAgentMetrics(c.env.DB);
-  return c.json(
-    {
-      success: result.success,
-      metrics: result.results,
-      message: "获取所有客户端指标成功",
-    },
-    200
-  )
-})
-
 
 // 获取单个客户端
 agents.get("/:id", async (c) => {

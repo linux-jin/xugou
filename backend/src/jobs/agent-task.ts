@@ -16,6 +16,7 @@ interface AgentResult {
   name: string;
   status: string;
   updated_at: string;
+  keepalive: string;
 }
 
 export const checkAgentsStatus = async (c: any) => {
@@ -39,10 +40,10 @@ export const checkAgentsStatus = async (c: any) => {
       const lastUpdateTime = new Date(agent.updated_at);
       const timeDiff = now.getTime() - lastUpdateTime.getTime();
 
-      // 如果超过60分钟没有更新状态，将客户端状态设置为inactive
-      if (timeDiff > inactiveThreshold) {
+      // 如果超过5个监控周期没有更新状态，将客户端状态设置为inactive
+      if (timeDiff > (parseInt(agent.keepalive || "60") * 5 * 1000)) {
         console.log(
-          `定时任务: 客户端 ${agent.name} (ID: ${agent.id}) 超过60分钟未更新状态，设置为离线`
+          `定时任务: 客户端 ${agent.name} (ID: ${agent.id}) 超过5个监控周期未更新状态，设置为离线`
         );
 
         // 更新客户端状态为inactive

@@ -10,7 +10,6 @@ import {
 import { Monitor, Agent } from "../types";
 import { getDashboardData } from "../api/dashboard";
 import StatusSummaryCard from "../components/StatusSummaryCard";
-import "../styles/components.css";
 import { useTranslation } from "react-i18next";
 
 const Dashboard = () => {
@@ -106,8 +105,8 @@ const Dashboard = () => {
   ];
 
   return (
-    <Box className="dashboard-container">
-      <Container size="3" py="5">
+    <Box>
+      <Container size="4">
         <Box>
           {/* 状态摘要 */}
           <Box pb="6">

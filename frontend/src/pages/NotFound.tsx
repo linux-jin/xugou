@@ -1,4 +1,5 @@
-import { Flex, Heading, Text, Button } from "@radix-ui/themes";
+import { Flex, Heading, Text } from "@radix-ui/themes";
+import { Button } from "@/components/ui";
 import { Link } from "react-router-dom";
 import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { useTranslation } from "react-i18next";
@@ -25,7 +26,7 @@ const NotFound = () => {
         <Text align="center" style={{ maxWidth: "500px" }}>
           {t("notFound.message")}
         </Text>
-        <Button size="3" mt="4" asChild>
+        <Button asChild>
           <Link to="/">{t("notFound.button")}</Link>
         </Button>
       </Flex>

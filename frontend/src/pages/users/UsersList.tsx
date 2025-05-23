@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
+import { Table, Text, Flex, Heading, Box } from "@radix-ui/themes";
 import {
   Button,
-  Table,
-  Text,
-  Flex,
-  Heading,
   AlertDialog,
-  Box,
-} from "@radix-ui/themes";
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogAction,
+} from "@/components/ui";
 import { getAllUsers, deleteUser } from "../../api/users";
 import { User } from "../../types";
 import { useNavigate } from "react-router-dom";
@@ -107,48 +109,37 @@ const UsersList = () => {
                   <Table.Cell>{user.role}</Table.Cell>
                   <Table.Cell>
                     <Flex gap="2">
-                      <Button
-                        size="1"
-                        onClick={() => navigate(`/users/${user.id}`)}
-                      >
+                      <Button variant="secondary" onClick={() => navigate(`/users/${user.id}`)}>
                         {t("common.edit")}
                       </Button>
-                      <AlertDialog.Root>
-                        <AlertDialog.Trigger>
-                          <Button size="1" color="red">
-                            {t("common.delete")}
-                          </Button>
-                        </AlertDialog.Trigger>
-                        <AlertDialog.Content>
-                          <AlertDialog.Title>
+                      <AlertDialog>
+                        <AlertDialogTrigger>
+                          {t("common.delete")}
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogTitle>
                             {t("common.deleteConfirmation")}
-                          </AlertDialog.Title>
-                          <AlertDialog.Description>
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
                             {t("users.deleteConfirm", {
                               username: user.username,
                             })}
-                          </AlertDialog.Description>
+                          </AlertDialogDescription>
                           <Flex gap="3" mt="4" justify="end">
-                            <AlertDialog.Cancel>
-                              <Button variant="soft" color="gray">
+                            <AlertDialogCancel>
+                             
                                 {t("common.cancel")}
-                              </Button>
-                            </AlertDialog.Cancel>
-                            <AlertDialog.Action>
-                              <Button
-                                variant="solid"
-                                color="red"
-                                onClick={() => {
-                                  setUserToDelete(user.id);
-                                  handleDelete();
-                                }}
-                              >
-                                {t("common.delete")}
-                              </Button>
-                            </AlertDialog.Action>
+                             
+                            </AlertDialogCancel>
+                            <AlertDialogAction onClick={() => {
+  setUserToDelete(user.id);
+  handleDelete();
+                            }}>
+                              {t("common.delete")}
+                            </AlertDialogAction>
                           </Flex>
-                        </AlertDialog.Content>
-                      </AlertDialog.Root>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </Flex>
                   </Table.Cell>
                 </Table.Row>

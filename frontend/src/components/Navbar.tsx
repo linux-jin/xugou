@@ -1,14 +1,17 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Box, Flex, Text, Container } from "@radix-ui/themes";
 import {
-  Box,
-  Flex,
-  Text,
+  Separator,
   Button,
   Avatar,
+  AvatarImage,
   DropdownMenu,
-  Separator,
-  Container,
-} from "@radix-ui/themes";
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "./ui";
 import {
   ExitIcon,
   PersonIcon,
@@ -22,7 +25,6 @@ import {
 } from "@radix-ui/react-icons";
 import { useAuth } from "../providers/AuthProvider";
 import { useState, useEffect } from "react";
-import "../styles/components.css";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "./LanguageSelector";
 
@@ -61,18 +63,18 @@ const Navbar = () => {
 
   return (
     <Box className={`navbar-wrapper ${isScrolled ? "scrolled" : ""}`}>
-      <Box className="navbar-container">
-        <Container size="3">
+      <Box >
+        <Container size="4">
           <Flex
             justify="between"
             align="center"
             py="2"
-            className="navbar-content"
+      
           >
             {/* Logo 部分 */}
-            <Link to="/" className="navbar-logo-link">
+            <Link to="/" >
               <Flex align="center" gap="2">
-                <Box className="navbar-logo">
+                <Box >
                   <PieChartIcon width="20" height="20" />
                 </Box>
                 <Text size="4" weight="bold">
@@ -85,14 +87,14 @@ const Navbar = () => {
             <Flex align="center" gap="2">
               {isAuthenticated ? (
                 <>
-                  <Flex className="navbar-links" align="center">
+                  <Flex  align="center">
                     <Link
                       to="/dashboard"
                       className={`nav-link ${
                         isActive("/dashboard") ? "active" : ""
                       }`}
                     >
-                      <Button variant="ghost" size="2" className="nav-button">
+                      <Button variant="ghost">
                         <DashboardIcon width="14" height="14" />
                         <Text ml="1" size="2">
                           {t("navbar.dashboard")}
@@ -106,7 +108,7 @@ const Navbar = () => {
                         isActive("/monitors") ? "active" : ""
                       }`}
                     >
-                      <Button variant="ghost" size="2" className="nav-button">
+                      <Button variant="ghost">
                         <ActivityLogIcon width="14" height="14" />
                         <Text ml="1" size="2">
                           {t("navbar.apiMonitors")}
@@ -120,7 +122,7 @@ const Navbar = () => {
                         isActive("/agents") ? "active" : ""
                       }`}
                     >
-                      <Button variant="ghost" size="2" className="nav-button">
+                      <Button variant="ghost">
                         <CubeIcon width="14" height="14" />
                         <Text ml="1" size="2">
                           {t("navbar.agentMonitors")}
@@ -134,7 +136,7 @@ const Navbar = () => {
                         isActive("/status/config") ? "active" : ""
                       }`}
                     >
-                      <Button variant="ghost" size="2" className="nav-button">
+                      <Button variant="ghost">
                         <PieChartIcon width="14" height="14" />
                         <Text ml="1" size="2">
                           {t("navbar.statusPage")}
@@ -148,7 +150,7 @@ const Navbar = () => {
                         isActive("/notifications") ? "active" : ""
                       }`}
                     >
-                      <Button variant="ghost" size="2" className="nav-button">
+                      <Button variant="ghost">
                         <BellIcon width="14" height="14" />
                         <Text ml="1" size="2">
                           {t("navbar.notifications")}
@@ -157,83 +159,80 @@ const Navbar = () => {
                     </Link>
                   </Flex>
 
-                  <Separator orientation="vertical" mx="3" />
+                  <Separator orientation="vertical" />
 
                   {/* 语言选择器 */}
                   <LanguageSelector />
 
-                  <Separator orientation="vertical" mx="3" />
+                  <Separator orientation="vertical" />
 
-                  <DropdownMenu.Root>
-                    <DropdownMenu.Trigger>
-                      <Button variant="ghost" className="user-menu-button">
-                        <Flex align="center" gap="1">
-                          <Avatar
-                            size="1"
-                            radius="full"
-                            fallback={
-                              user?.username?.charAt(0).toUpperCase() || "U"
-                            }
-                            color="blue"
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <Flex
+                        align="center"
+                        gap="1"
+                        className="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                      >
+                        <Avatar>
+                          <AvatarImage
+                            alt={user?.username}
+                            width="32"
+                            height="32"
                           />
-                          <Box display={{ initial: "none", sm: "block" }}>
-                            <Text size="2">{user?.username}</Text>
-                          </Box>
-                          <ChevronDownIcon width="12" height="12" />
-                        </Flex>
-                      </Button>
-                    </DropdownMenu.Trigger>
-                    <DropdownMenu.Content align="end" className="user-dropdown">
-                      <DropdownMenu.Label>
+                        </Avatar>
+                        <Box display={{ initial: "none", sm: "block" }}>
+                          <Text size="2">{user?.username}</Text>
+                        </Box>
+                        <ChevronDownIcon width="12" height="12" />
+                      </Flex>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="user-dropdown">
+                      <DropdownMenuLabel>
                         <Text size="1" color="gray">
                           {t("navbar.loggedInAs")}
                         </Text>
                         <Text size="2" weight="bold">
                           {user?.username}
                         </Text>
-                      </DropdownMenu.Label>
+                      </DropdownMenuLabel>
 
-                      <DropdownMenu.Separator />
+                      <DropdownMenuSeparator />
 
                       {user?.role === "admin" && (
-                        <DropdownMenu.Item onClick={() => navigate("/users")}>
+                        <DropdownMenuItem onClick={() => navigate("/users")}>
                           <Flex gap="2" align="center">
                             <UserIcon width="14" height="14" />
                             <Text size="2">{t("navbar.userManagement")}</Text>
                           </Flex>
-                        </DropdownMenu.Item>
+                        </DropdownMenuItem>
                       )}
 
-                      <DropdownMenu.Item onClick={() => navigate("/profile")}>
+                      <DropdownMenuItem onClick={() => navigate("/profile")}>
                         <Flex gap="2" align="center">
                           <PersonIcon width="14" height="14" />
                           <Text size="2">{t("navbar.profile")}</Text>
                         </Flex>
-                      </DropdownMenu.Item>
+                      </DropdownMenuItem>
 
-                      <DropdownMenu.Separator />
+                      <DropdownMenuSeparator />
 
-                      <DropdownMenu.Item color="red" onClick={handleLogout}>
+                      <DropdownMenuItem color="red" onClick={handleLogout}>
                         <Flex gap="2" align="center">
                           <ExitIcon width="14" height="14" />
                           <Text size="2">{t("navbar.logout")}</Text>
                         </Flex>
-                      </DropdownMenu.Item>
-                    </DropdownMenu.Content>
-                  </DropdownMenu.Root>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </>
               ) : (
                 <Flex gap="2" align="center">
                   {/* 语言选择器 */}
                   <LanguageSelector />
 
-                  <Separator orientation="vertical" mx="2" />
+                  <Separator orientation="vertical" />
 
-                  <Button
-                    variant="ghost"
-                    onClick={() => navigate("/login")}
-                    size="2"
-                  >
+                  <Button variant="ghost" onClick={() => navigate("/login")}>
                     {t("navbar.login")}
                   </Button>
                 </Flex>
